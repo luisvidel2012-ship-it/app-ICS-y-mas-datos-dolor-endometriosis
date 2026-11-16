@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7b2d5b">
+<title>Inventario de Sensibilización Central (CSI)</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<header>
+  <h1>Inventario de Sensibilización Central</h1>
+  <nav>
+    <button data-tab="form" class="active">Nuevo registro</button>
+    <button data-tab="records">Registros <span id="count">0</span></button>
+  </nav>
+</header>
+<main>
+<section id="tab-form">
+  <form id="csi-form" autocomplete="off">
+    <fieldset>
+      <legend>Datos del participante</legend>
+      <label>Código / ID <input name="id" required></label>
+      <label>Fecha <input type="date" name="fecha" required></label>
+      <label>Edad <input type="number" name="edad" min="0" max="120"></label>
+      <label>Dolor pélvico promedio (0–10)
+        <input type="number" name="eva" min="0" max="10" step="1"></label>
+      <label>Diagnóstico de endometriosis
+        <select name="endo"><option value="">—</option><option>Sí</option><option>No</option><option>En estudio</option></select></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Parte A — ¿Con qué frecuencia le ocurre lo siguiente?</legend>
+      <p class="hint">0 = Nunca · 1 = Rara vez · 2 = A veces · 3 = Frecuentemente · 4 = Siempre</p>
+      <div id="items"></div>
+      <p class="total">Puntaje parcial: <strong id="live-score">0</strong>/100 · respondidos: <span id="live-answered">0</span>/25</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Parte B — ¿Le han diagnosticado alguno de estos problemas?</legend>
+      <div id="diagnoses"></div>
+    </fieldset>
+
+    <label>Observaciones <textarea name="obs" rows="3"></textarea></label>
+    <div class="actions">
+      <button type="submit" class="primary">Guardar registro</button>
+      <button type="reset" id="btn-clear">Limpiar</button>
+    </div>
+  </form>
+  <div id="result" hidden></div>
+</section>
+
+<section id="tab-records" hidden>
+  <div class="actions">
+    <button id="export-csv" class="primary">Exportar CSV</button>
+    <button id="export-json">Respaldo JSON</button>
+    <label class="filebtn">Importar JSON <input type="file" id="import-json" accept=".json" hidden></label>
+  </div>
+  <div class="tablewrap">
+    <table id="records-table">
+      <thead><tr><th>ID</th><th>Fecha</th><th>Edad</th><th>Dolor</th><th>CSI</th><th>Nivel</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p id="empty" class="hint">Aún no hay registros.</p>
+  <p class="hint">Los datos se guardan solo en este dispositivo (localStorage). Exporte respaldos con regularidad.</p>
+</section>
+</main>
+<script src="src/csi.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
