@@ -20,3 +20,6 @@ Publicar la carpeta (GitHub Pages o similar) y ejecutar `pip install segno && py
 
 ## Antes de usar con pacientes reales
 Aprobación del comité de ética, consentimiento definitivo, ID anónimo (sin nombre ni RUT) y revisión de la Ley 19.628 y la nueva ley de protección de datos personales (Ley 21.719). No recomendado: Google Sheets personal; usar base de datos con control de acceso.
+
+## Consentimiento informado
+Texto en `src/consent.js` (versión `v0.1-piloto-2026-11`), con 3 casillas obligatorias y edad ≥18. Se guarda versión y fecha/hora del consentimiento en cada registro. Complete en `src/config.js`: INSTITUCION, RESPONSABLE, CONTACTO, PLAZO y, solo si existe, ETICA. Lo no completado aparece resaltado como [COMPLETAR]. El texto debe ser revisado por la institución antes de usarse con personas reales.

@@ -21,17 +21,20 @@
 <section id="tab-form">
   <form id="csi-form" autocomplete="off">
     <fieldset id="consent-box">
-      <legend>Consentimiento</legend>
-      <p class="hint">Este cuestionario recoge información de salud con fines de investigación. Sus respuestas se registran con un código, sin nombre ni RUT, y se tratan de forma confidencial. Su participación es voluntaria y puede detenerse en cualquier momento. <em>[Texto definitivo sujeto a aprobación del comité de ética.]</em></p>
-      <label><input type="checkbox" name="consent" required style="width:auto"> Entiendo y acepto participar</label>
-      <label><input type="checkbox" name="demo" style="width:auto"> Modo demo (paciente ficticio)</label>
+      <legend>Consentimiento informado</legend>
+      <div id="consent-text" class="consent" tabindex="0"></div>
+      <p><button type="button" id="print-consent">Imprimir o guardar copia del consentimiento</button></p>
+      <label class="check"><input type="checkbox" name="c1" required> He leído y comprendido esta información, he podido hacer preguntas y declaro ser mayor de 18 años.</label>
+      <label class="check"><input type="checkbox" name="c2" required> Acepto voluntariamente participar y autorizo el tratamiento de mis datos de salud para los fines descritos.</label>
+      <label class="check"><input type="checkbox" name="c3" required> Autorizo que mis datos se almacenen en servidores de Google, que pueden estar ubicados fuera de Chile.</label>
+      <label class="check demo"><input type="checkbox" name="demo"> Modo demo (paciente ficticio)</label>
     </fieldset>
 
     <fieldset>
       <legend>Datos del participante</legend>
       <label>Código / ID <input name="id" required placeholder="Ej.: P001 (no use su nombre ni RUT)"></label>
       <label>Fecha <input type="date" name="fecha" required></label>
-      <label>Edad <input type="number" name="edad" min="0" max="120"></label>
+      <label>Edad (solo mayores de 18 años) <input type="number" name="edad" min="18" max="120" required></label>
       <label>Dolor pélvico promedio (0–10)
         <input type="number" name="eva" min="0" max="10" step="1"></label>
       <label>Diagnóstico de endometriosis
@@ -80,6 +83,7 @@
   <p>Instrumento: Central Sensitization Inventory (CSI), Mayer et al., 2012. Versión en español: Cuesta-Vargas AI, Roldán-Jiménez C, Neblett R, Gatchel RJ. <em>SpringerPlus</em> 2016;5:1837, doi:10.1186/s40064-016-3515-4, licencia CC BY 4.0. Es un cuestionario de tamizaje, no un diagnóstico.</p>
 </footer>
 <script src="src/config.js"></script>
+<script src="src/consent.js"></script>
 <script src="src/csi.js"></script>
 <script src="src/app.js"></script>
 </body>

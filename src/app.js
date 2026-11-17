@@ -9,6 +9,15 @@
   const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
   const save = r => localStorage.setItem(KEY, JSON.stringify(r));
 
+  // Consentimiento
+  $("#consent-text").innerHTML = CSI_CONSENT.html(CFG);
+  $("#print-consent").addEventListener("click", () => {
+    const w = window.open("", "_blank");
+    if (!w) return alert("Permita las ventanas emergentes para imprimir.");
+    w.document.write("<!DOCTYPE html><meta charset=utf-8><title>Consentimiento informado</title><body style='font-family:sans-serif;max-width:700px;margin:auto'>" + CSI_CONSENT.html(CFG) + "</body>");
+    w.document.close(); w.focus(); w.print();
+  });
+
   // Render del formulario
   $("#items").innerHTML = CSI.ITEMS.map((t, i) => `
     <div class="item"><span class="q">${i + 1}. ${t}</span>
@@ -39,7 +48,7 @@
     if (recs.some(r => r.id === form.id.value.trim() && r.fecha === form.fecha.value) &&
         !confirm("Ya existe un registro con ese ID y fecha. ¿Guardar de todos modos?")) return;
     const rec = {
-      clinica: CLINICA, demo: form.demo.checked, consentimiento: true,
+      clinica: CLINICA, demo: form.demo.checked, consentimiento: { version: CSI_CONSENT.VERSION, fecha: new Date().toISOString(), c1: form.c1.checked, c2: form.c2.checked, c3: form.c3.checked },
       uid: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       id: form.id.value.trim(), fecha: form.fecha.value, edad: form.edad.value,
       eva: form.eva.value, endo: form.endo.value, obs: form.obs.value,
@@ -125,7 +134,10 @@
     CSI.ITEMS.forEach((_, i) => o["csi_" + (i + 1)] = r.respuestas[i]);
     o.csi_total = r.total; o.csi_nivel = r.nivel;
     r.diagnosticos.forEach((d, i) => { o["dx" + (i + 1)] = d.si ? 1 : 0; o["dx" + (i + 1) + "_anio"] = d.anio; });
-    o.observaciones = r.obs; return o;
+    o.observaciones = r.obs;
+    o.consentimiento_version = r.consentimiento && r.consentimiento.version;
+    o.consentimiento_fecha = r.consentimiento && r.consentimiento.fecha;
+    return o;
   }
   window.addEventListener("online", flush);
   render(); live(); flush();
