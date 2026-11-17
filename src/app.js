@@ -41,7 +41,7 @@
   form.addEventListener("change", live);
   const showBanner = () => { $("#demo-banner").hidden = !(STAFF && form.demo.checked); };
   form.demo.addEventListener("change", showBanner);
-  if (params.get("demo") === "1") { form.demo.checked = true; showBanner(); }  // marca silenciosa: el participante no ve nada
+  if (params.get("demo") === "1") { form.demo.checked = true; showBanner(); }  // marca silenciosa: el paciente no ve nada
   form.fecha.valueAsDate = new Date();
   $("#btn-clear").addEventListener("click", () => setTimeout(() => { form.fecha.valueAsDate = new Date(); live(); $("#result").hidden = true; }));
 
@@ -93,7 +93,7 @@ Este puntaje es una herramienta de tamizaje: <strong>no es un diagnóstico</stro
 <table><tr><th>N°</th><th>Enunciado</th><th>Respuesta</th></tr>${rows}</table>
 <h2 style="font-size:1rem">Parte B — Diagnósticos previos indicados</h2><ul>${dx}</ul>
 <p class="note">Consentimiento aceptado: versión ${e2(r.consentimiento.version)}, ${e2(r.consentimiento.fecha)}.
-Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron además enviadas al equipo del estudio según el consentimiento que usted aceptó" : " y no se envió a ningún servidor"}.</p>
+Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron además enviadas a su equipo de salud según el consentimiento que usted aceptó" : " y no se envió a ningún servidor"}.</p>
 <p class="note">Aplicación desarrollada por Karina Castillo. Instrumento: Central Sensitization Inventory (Mayer et al., 2012). Versión en español: Cuesta-Vargas AI, Roldán-Jiménez C, Neblett R, Gatchel RJ. SpringerPlus 2016;5:1837, doi:10.1186/s40064-016-3515-4 (CC BY 4.0).</p>
 <button onclick="window.print()">Imprimir o guardar como PDF</button>`;
   }

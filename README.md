@@ -22,7 +22,7 @@ Publicar la carpeta (GitHub Pages o similar) y ejecutar `pip install segno && py
 Aprobación del comité de ética, consentimiento definitivo, ID anónimo (sin nombre ni RUT) y revisión de la Ley 19.628 y la nueva ley de protección de datos personales (Ley 21.719). No recomendado: Google Sheets personal; usar base de datos con control de acceso.
 
 ## Consentimiento informado
-Texto en `src/consent.js` (versión `v0.1-piloto-2026-11`), con 3 casillas obligatorias y edad ≥18. Se guarda versión y fecha/hora del consentimiento en cada registro. Complete en `src/config.js`: INSTITUCION, RESPONSABLE, CONTACTO, PLAZO y, solo si existe, ETICA. Lo no completado aparece resaltado como [COMPLETAR]. El texto debe ser revisado por la institución antes de usarse con personas reales.
+Texto en `src/consent.js` (versión `v0.3-2026-11`), enfocado en el uso clínico: orientar la evaluación y el tratamiento. Se adapta solo: sin `SHEETS_URL` dice que los datos quedan en el dispositivo; con `SHEETS_URL` dice que se envían al equipo de salud vía Google y aparece una tercera casilla. Responsable y contacto se definen en `src/config.js`. Se guarda versión y fecha/hora del consentimiento en cada registro.
 
 ## Costo mínimo: US$0
 - **Hosting:** GitHub Pages (gratis, repositorio público). **Dominio:** el de github.io (gratis). **QR:** `qr/qr-produccion.png` (sin costo).
