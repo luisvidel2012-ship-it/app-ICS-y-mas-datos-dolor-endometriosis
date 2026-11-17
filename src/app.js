@@ -43,10 +43,48 @@
   form.demo.addEventListener("change", showBanner);
   if (params.get("demo") === "1") { form.demo.checked = true; showBanner(); }  // marca silenciosa: el paciente no ve nada
   form.fecha.valueAsDate = new Date();
-  $("#btn-clear").addEventListener("click", () => setTimeout(() => { form.fecha.valueAsDate = new Date(); live(); $("#result").hidden = true; }));
+  $("#btn-clear").addEventListener("click", () => setTimeout(() => { form.fecha.valueAsDate = new Date(); live(); $("#result").hidden = true; clearErrors(); }));
+
+  // Validación con mensajes claros (los botones 0–4 son radios ocultos: el aviso nativo del navegador no se ve)
+  const errBox = $("#form-error");
+  function clearErrors() { form.querySelectorAll(".missing").forEach(el => el.classList.remove("missing")); errBox.hidden = true; }
+  function firstProblem() {
+    const box = n => form[n].closest("label");
+    for (const n of ["c1", "c2", "c3"]) if (form[n].required && !form[n].checked)
+      return { el: box(n), msg: "Para continuar, marque las casillas del consentimiento informado (al inicio)." };
+    if (!form.id.value.trim()) return { el: form.id, msg: "Ingrese un código (no use su nombre ni su RUT)." };
+    const edad = Number(form.edad.value);
+    if (!form.edad.value || !Number.isInteger(edad) || edad < 18 || edad > 120) return { el: form.edad, msg: "Ingrese su edad. Este cuestionario es solo para mayores de 18 años." };
+    if (form.eva.value !== "" && !(Number(form.eva.value) >= 0 && Number(form.eva.value) <= 10)) return { el: form.eva, msg: "El dolor pélvico debe ser un número de 0 a 10." };
+    const faltan = answers().map((v, i) => v === null ? i : -1).filter(i => i >= 0);
+    if (faltan.length) {
+      faltan.forEach(i => form.querySelector(`input[name=q${i}]`).closest(".item").classList.add("missing"));
+      const n = faltan.length;
+      return { el: form.querySelector(`input[name=q${faltan[0]}]`).closest(".item"),
+        msg: n === 1 ? `Falta responder la pregunta ${faltan[0] + 1}.` : `Faltan ${n} preguntas por responder (primera: la ${faltan[0] + 1}). Están marcadas en color.` };
+    }
+    for (let i = 0; i < CSI.DIAGNOSES.length; i++) {
+      const y = form[`dy${i}`]; if (y.value && !(Number(y.value) >= 1900 && Number(y.value) <= new Date().getFullYear()))
+        return { el: y, msg: `Revise el año de diagnóstico de: ${CSI.DIAGNOSES[i]}.` };
+    }
+    return null;
+  }
+  form.addEventListener("change", e => {   // al corregir, quitar la marca
+    for (const sel of [".item", "label", ".diag"]) { const it = e.target.closest(sel); if (it) it.classList.remove("missing"); }
+    if (e.target.classList) e.target.classList.remove("missing");
+    if (!errBox.hidden && !form.querySelector(".missing")) errBox.hidden = true;
+  });
 
   form.addEventListener("submit", e => {
     e.preventDefault();
+    clearErrors();
+    const prob = firstProblem();
+    if (prob) {
+      prob.el.classList.add("missing");
+      errBox.textContent = prob.msg; errBox.hidden = false;
+      prob.el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     const s = CSI.score(answers());
     const recs = load();
     if (recs.some(r => r.id === form.id.value.trim() && r.fecha === form.fecha.value) &&
@@ -67,11 +105,17 @@
       Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
       ${rec.total >= 40 ? "Su puntaje está en un rango que su médica querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
       Su médica interpretará este resultado junto con el resto de su evaluación.</p>
+      <p class="report-step">Guarde su informe con todas sus respuestas y su puntaje:</p>
       <p class="report-actions"><button type="button" class="primary" id="download-pdf">Descargar mi informe (PDF)</button>
-      <button type="button" class="link" id="open-report">Ver en pantalla</button></p>`;
+      <button type="button" class="link" id="open-report">Ver en pantalla</button></p>
+      <p class="report-new"><button type="button" class="link" id="new-form">Responder un nuevo cuestionario</button></p>`;
     lastRec = rec; $("#open-report").addEventListener("click", openReport); $("#download-pdf").addEventListener("click", downloadPDF);
+    $("#new-form").addEventListener("click", () => {
+      r.hidden = true; form.hidden = false; window.scrollTo({ top: 0, behavior: "smooth" });
+    });
     form.reset(); form.fecha.valueAsDate = new Date(); live();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    form.hidden = true;                                   // el resultado queda solo y arriba, a la vista
+    r.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   // Informe del paciente (se genera en el dispositivo; no se envía nada)

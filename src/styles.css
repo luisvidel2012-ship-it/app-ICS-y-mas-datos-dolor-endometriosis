@@ -102,7 +102,7 @@ button.primary{background:var(--boton);color:#fff;border-color:transparent;paddi
 button.primary:hover{box-shadow:0 12px 28px rgba(122,28,84,.36)}
 
 /* Resultado */
-#result{background:#fff;border:1px solid var(--borde);border-radius:22px;padding:1rem 1.25rem;margin-bottom:1.1rem;
+#result{scroll-margin-top:12px;background:#fff;border:1px solid var(--borde);border-radius:22px;padding:1rem 1.25rem;margin-bottom:1.1rem;
   box-shadow:0 8px 28px rgba(122,28,84,.1);border-top:5px solid var(--rosa)}
 #result h2{font-family:var(--serif);font-weight:400;color:var(--ciruela);font-size:1.6rem;margin:.3rem 0 .4rem}
 #result strong{color:var(--rosa-profundo)}
@@ -122,3 +122,12 @@ button.link{border:0;background:none;padding:.2rem 0;color:var(--vino);font-size
 button.link:hover{box-shadow:none;color:var(--rosa)}
 .report-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.2rem}
 button:disabled{opacity:.7;cursor:progress}
+/* Avisos de validación */
+.form-error{background:#fff0f5;border:1.5px solid var(--rosa);border-left-width:6px;color:var(--vino);font-weight:700;
+  border-radius:14px;padding:.75rem 1rem;margin:1rem 0 0}
+.item.missing{background:#fff0f5;border:2px solid var(--rosa);border-radius:16px;padding:.75rem .7rem;margin:.3rem -.7rem}
+.item.missing .q::after{content:" · sin responder";color:var(--rosa);font-weight:800;font-size:.85rem}
+label.missing{background:#fff0f5;outline:2px solid var(--rosa);outline-offset:4px;border-radius:10px}
+input.missing{border-color:var(--rosa);box-shadow:0 0 0 4px rgba(210,60,114,.18)}
+.report-step{margin:.9rem 0 .2rem;font-weight:700;color:var(--ciruela)}
+.report-new{margin:.6rem 0 .2rem}

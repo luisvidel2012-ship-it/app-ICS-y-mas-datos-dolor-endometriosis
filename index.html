@@ -29,7 +29,8 @@
 </header>
 <main>
 <section id="tab-form">
-  <form id="csi-form" autocomplete="off">
+  <div id="result" hidden></div>
+  <form id="csi-form" autocomplete="off" novalidate>
     <fieldset id="consent-box">
       <legend>Consentimiento informado</legend>
       <div id="consent-text" class="consent" tabindex="0"></div>
@@ -64,12 +65,12 @@
     </fieldset>
 
     <label>Observaciones <textarea name="obs" rows="3"></textarea></label>
+    <p id="form-error" class="form-error" role="alert" hidden></p>
     <div class="actions">
       <button type="submit" class="primary">Guardar registro</button>
       <button type="reset" id="btn-clear">Limpiar</button>
     </div>
   </form>
-  <div id="result" hidden></div>
 </section>
 
 <section id="tab-records" hidden>
