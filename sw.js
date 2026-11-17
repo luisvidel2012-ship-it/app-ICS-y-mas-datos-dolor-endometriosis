@@ -1,3 +1,13 @@
-const C="csi-v1",F=["./","index.html","src/styles.css","src/csi.js","src/app.js","manifest.webmanifest"];
-self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F))));
-self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+// Red primero: si hay internet se usa siempre la versión más reciente (importante para el consentimiento);
+// la copia guardada solo se usa sin conexión.
+const C = "csi-v2";
+const F = ["./", "index.html", "src/styles.css", "src/config.js", "src/consent.js", "src/csi.js", "src/app.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
+self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.open(C).then(c => c.addAll(F))); });
+self.addEventListener("activate", e => e.waitUntil(
+  caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));
+self.addEventListener("fetch", e => {
+  const u = new URL(e.request.url);
+  if (e.request.method !== "GET" || u.origin !== location.origin) return;   // los envíos a Google pasan directo
+  e.respondWith(fetch(e.request).then(r => { const cp = r.clone(); caches.open(C).then(c => c.put(e.request, cp)); return r; })
+    .catch(() => caches.match(e.request)));
+});
