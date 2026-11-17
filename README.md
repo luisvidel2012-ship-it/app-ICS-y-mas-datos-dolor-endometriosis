@@ -1,7 +1,7 @@
 # App CSI — Inventario de Sensibilización Central
 Aplicación desarrollada por **Karina Castillo**. Instrumento: CSI (Mayer et al., 2012); versión en español: Cuesta-Vargas et al., 2016 (doi:10.1186/s40064-016-3515-4).
 
-**Estado:** piloto con datos ficticios. El texto de los ítems es provisional hasta cargar la versión oficial (ver aviso en `src/csi.js`).
+**Estado:** piloto con datos ficticios. Los ítems y la Parte B usan el texto oficial del Apéndice de Cuesta-Vargas et al. 2016 (CC BY 4.0). Los rangos de gravedad (30–39, 40–49…) provienen de Neblett et al. 2016 y están pendientes de verificar contra esa fuente; el punto de corte 40 sí figura en el artículo.
 
 ## Probar
 `python3 -m http.server 8000` y abrir `http://localhost:8000/?demo=1` (el parámetro `demo=1` marca los registros como ficticios).
