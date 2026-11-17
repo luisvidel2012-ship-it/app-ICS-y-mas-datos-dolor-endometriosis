@@ -23,7 +23,7 @@
 <h4>4. ¿Para qué se usarán?</h4>
 <p>Solo para los fines de este estudio, mediante análisis estadísticos agrupados. No se usarán con fines comerciales, ni se venderán ni cederán a terceros.</p>
 
-<h4>5. ¿Quién tendrá acceso?</h4>
+<!--SERVER--><h4>5. ¿Quién tendrá acceso?</h4>
 <p>Solo las personas autorizadas del equipo del proyecto.</p>
 
 <h4>6. ¿Dónde se guardan?</h4>
@@ -32,7 +32,7 @@
 <h4>7. ¿Por cuánto tiempo?</h4>
 <p>Hasta: {{PLAZO}}. Después, los datos serán eliminados o anonimizados.</p>
 
-<h4>8. Riesgos y beneficios</h4>
+<!--/SERVER--><h4>8. Riesgos y beneficios</h4>
 <p>Los riesgos son mínimos: puede sentir incomodidad al responder sobre ánimo, sueño o antecedentes personales, y existe un riesgo, que buscamos reducir, de pérdida de confidencialidad de los datos. No hay beneficio directo para usted; su participación contribuye al conocimiento sobre este tema. Si se siente mal, puede detenerse y comunicarse con {{CONTACTO}}. Ante una urgencia, acuda al servicio de urgencia más cercano.</p>
 
 <h4>9. Participación voluntaria y retiro</h4>
@@ -47,7 +47,8 @@
 
   function html(cfg) {
     cfg = cfg || {};
-    return TEXT.replace(/\{\{(\w+)\}\}/g, (_, k) => {
+    const t = cfg.SHEETS_URL ? TEXT : TEXT.replace(/<!--SERVER-->[\s\S]*?<!--\/SERVER-->/, '<h4>5. ¿Quién tendrá acceso?</h4>\n<p>Nadie más que usted. Sus respuestas se procesan en su propio dispositivo y <strong>no se envían a ningún servidor</strong> ni al equipo del proyecto.</p>\n\n<h4>6. ¿Dónde se guardan?</h4>\n<p>Únicamente en la memoria de su navegador, en este dispositivo. Usted puede generar un informe para guardarlo o imprimirlo. Si usa un dispositivo compartido, borre los datos del navegador al terminar.</p>\n\n<h4>7. ¿Por cuánto tiempo?</h4>\n<p>Hasta que usted los borre del navegador.</p>\n\n');
+    return t.replace(/\{\{(\w+)\}\}/g, (_, k) => {
       const v = (cfg[k] || "").toString().trim();
       if (v) return k === "ETICA" ? v : esc(v);
       if (k === "ETICA") return DEFAULT_ETICA;

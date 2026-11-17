@@ -1,4 +1,5 @@
 (function () {
+  let form_c3_off = false;
   const KEY = "csi-records-v1";
   const $ = s => document.querySelector(s);
   const CFG = window.CSI_CONFIG || {};
@@ -10,6 +11,8 @@
   const save = r => localStorage.setItem(KEY, JSON.stringify(r));
 
   // Consentimiento
+  const REMOTE = !!CFG.SHEETS_URL;                    // sin URL configurada: todo queda en el dispositivo
+  if (!REMOTE) { $("#c3-label").hidden = true; form_c3_off = true; $("[name=c3]").required = false; }
   $("#consent-text").innerHTML = CSI_CONSENT.html(CFG);
   $("#print-consent").addEventListener("click", () => {
     const w = window.open("", "_blank");
@@ -49,7 +52,7 @@
     if (recs.some(r => r.id === form.id.value.trim() && r.fecha === form.fecha.value) &&
         !confirm("Ya existe un registro con ese ID y fecha. ¿Guardar de todos modos?")) return;
     const rec = {
-      clinica: CLINICA, demo: form.demo.checked, consentimiento: { version: CSI_CONSENT.VERSION, fecha: new Date().toISOString(), c1: form.c1.checked, c2: form.c2.checked, c3: form.c3.checked },
+      clinica: CLINICA, demo: form.demo.checked, consentimiento: { version: CSI_CONSENT.VERSION, fecha: new Date().toISOString(), c1: form.c1.checked, c2: form.c2.checked, c3: form_c3_off ? null : form.c3.checked },
       uid: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       id: form.id.value.trim(), fecha: form.fecha.value, edad: form.edad.value,
       eva: form.eva.value, endo: form.endo.value, obs: form.obs.value,
@@ -63,10 +66,44 @@
     r.innerHTML = `<h2>¡Gracias por responder!</h2><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
       Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
       ${rec.total >= 40 ? "Su puntaje está en un rango que su equipo de salud querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
-      Su equipo tratante interpretará este resultado junto con el resto de su evaluación.</p>`;
+      Su equipo tratante interpretará este resultado junto con el resto de su evaluación.</p>
+      <p><button type="button" class="primary" id="open-report">Ver mi informe (guardar o imprimir)</button></p>`;
+    lastRec = rec; $("#open-report").addEventListener("click", openReport);
     form.reset(); form.fecha.valueAsDate = new Date(); live();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
+
+  // Informe del paciente (se genera en el dispositivo; no se envía nada)
+  const LABELS = ["Nunca", "Pocas veces", "Algunas veces", "Continuamente", "Siempre"];
+  const e2 = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function reportHTML(r) {
+    const rows = CSI.ITEMS.map((t, i) => `<tr><td>${i + 1}</td><td>${e2(t)}</td><td>${LABELS[r.respuestas[i]]} (${r.respuestas[i]})</td></tr>`).join("");
+    const dx = r.diagnosticos.filter(d => d.si).map(d => `<li>${e2(d.nombre)}${d.anio ? " — " + e2(d.anio) : ""}</li>`).join("") || "<li>Ninguno indicado</li>";
+    return `<!DOCTYPE html><meta charset="utf-8"><title>Informe CSI ${e2(r.id)}</title>
+<style>body{font-family:system-ui,sans-serif;max-width:760px;margin:1.5rem auto;padding:0 1rem;color:#222}
+h1{font-size:1.3rem;color:#7b2d5b}table{border-collapse:collapse;width:100%;font-size:.85rem}td,th{border:1px solid #ccc;padding:.3rem .5rem;text-align:left}
+.score{font-size:2rem;font-weight:700;color:#7b2d5b}small,.note{color:#555;font-size:.8rem}@media print{button{display:none}}</style>
+<h1>Informe — Inventario de Sensibilización Central (CSI)</h1>
+<p><strong>Código:</strong> ${e2(r.id)} · <strong>Fecha:</strong> ${e2(r.fecha)} · <strong>Edad:</strong> ${e2(r.edad)}
+${r.eva !== "" ? " · <strong>Dolor pélvico (0–10):</strong> " + e2(r.eva) : ""}</p>
+<p>Puntaje total</p><p class="score">${r.total} <small>de 100</small></p>
+<p>El valor de referencia utilizado en la literatura es 40. ${r.total >= 40 ? "Su puntaje lo alcanza o lo supera." : "Su puntaje está por debajo de ese valor."}
+Este puntaje es una herramienta de tamizaje: <strong>no es un diagnóstico</strong> y debe ser interpretado por su equipo de salud.</p>
+<h2 style="font-size:1rem">Parte A — Sus respuestas</h2>
+<table><tr><th>N°</th><th>Enunciado</th><th>Respuesta</th></tr>${rows}</table>
+<h2 style="font-size:1rem">Parte B — Diagnósticos previos indicados</h2><ul>${dx}</ul>
+<p class="note">Consentimiento aceptado: versión ${e2(r.consentimiento.version)}, ${e2(r.consentimiento.fecha)}.
+Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron además enviadas al equipo del estudio según el consentimiento que usted aceptó" : " y no se envió a ningún servidor"}.</p>
+<p class="note">Aplicación desarrollada por Karina Castillo. Instrumento: Central Sensitization Inventory (Mayer et al., 2012). Versión en español: Cuesta-Vargas AI, Roldán-Jiménez C, Neblett R, Gatchel RJ. SpringerPlus 2016;5:1837, doi:10.1186/s40064-016-3515-4 (CC BY 4.0).</p>
+<button onclick="window.print()">Imprimir o guardar como PDF</button>`;
+  }
+  let lastRec = null;
+  function openReport() {
+    if (!lastRec) return;
+    const w = window.open("", "_blank");
+    if (!w) return alert("Permita las ventanas emergentes para ver el informe.");
+    w.document.write(reportHTML(lastRec)); w.document.close();
+  }
 
   // Registros
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
