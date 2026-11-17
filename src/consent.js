@@ -11,7 +11,7 @@
 
 <h4>1. ¿De qué se trata?</h4>
 <p>Se le invita a participar en un estudio que recoge, mediante una aplicación desarrollada por Karina Castillo, las respuestas al <em>Inventario de Sensibilización Central (CSI)</em>, un cuestionario que explora síntomas que pueden relacionarse con la sensibilización central del dolor en personas con dolor pélvico o endometriosis. El cuestionario es una herramienta de tamizaje: <strong>no entrega un diagnóstico</strong> y no reemplaza la evaluación de su equipo de salud.</p>
-<p>Responsable del estudio: {{INSTITUCION}}. Persona responsable: {{RESPONSABLE}}.</p>
+<p>Responsable del estudio: <!--INST-->{{INSTITUCION}}. Persona responsable: <!--/INST-->{{RESPONSABLE}}.</p>
 
 <h4>2. ¿Qué se le pide?</h4>
 <p>Responder datos básicos (edad, intensidad del dolor pélvico, si tiene diagnóstico de endometriosis), 25 preguntas sobre síntomas y una lista de diagnósticos previos. Toma alrededor de 10 minutos.</p>
@@ -35,19 +35,21 @@
 <!--/SERVER--><h4>8. Riesgos y beneficios</h4>
 <p>Los riesgos son mínimos: puede sentir incomodidad al responder sobre ánimo, sueño o antecedentes personales, y existe un riesgo, que buscamos reducir, de pérdida de confidencialidad de los datos. No hay beneficio directo para usted; su participación contribuye al conocimiento sobre este tema. Si se siente mal, puede detenerse y comunicarse con {{CONTACTO}}. Ante una urgencia, acuda al servicio de urgencia más cercano.</p>
 
-<h4>9. Participación voluntaria y retiro</h4>
+<!--RETIRO--><h4>9. Participación voluntaria y retiro</h4>
 <p>Participar es voluntario. Puede negarse o retirarse en cualquier momento, <strong>sin ninguna consecuencia para su atención de salud</strong>. Si desea que se eliminen sus datos, escriba a {{CONTACTO}} indicando su código de participante. Como sus datos no incluyen su nombre, <strong>necesitamos su código para encontrar su registro: anótelo</strong>.</p>
 
 <h4>10. Sus derechos</h4>
 <p>Usted puede solicitar acceso a sus datos, su rectificación, su eliminación y oponerse a su tratamiento, y, cuando rija la Ley N° 21.719, también su portabilidad y bloqueo, escribiendo a {{CONTACTO}}.</p>
 
-<h4>11. Evaluación ética y marco legal</h4>
+<!--/RETIRO--><h4>11. Evaluación ética y marco legal</h4>
 <p>{{ETICA}}</p>
 <p>Este documento se redacta considerando las leyes N° 19.628 (protección de la vida privada), N° 20.120 (investigación científica en el ser humano) y N° 20.584 (derechos y deberes de los pacientes), y la Ley N° 21.719 (protección de datos personales) en lo que corresponda.</p>`;
 
   function html(cfg) {
     cfg = cfg || {};
-    const t = cfg.SHEETS_URL ? TEXT : TEXT.replace(/<!--SERVER-->[\s\S]*?<!--\/SERVER-->/, '<h4>5. ¿Quién tendrá acceso?</h4>\n<p>Nadie más que usted. Sus respuestas se procesan en su propio dispositivo y <strong>no se envían a ningún servidor</strong> ni al equipo del proyecto.</p>\n\n<h4>6. ¿Dónde se guardan?</h4>\n<p>Únicamente en la memoria de su navegador, en este dispositivo. Usted puede generar un informe para guardarlo o imprimirlo. Si usa un dispositivo compartido, borre los datos del navegador al terminar.</p>\n\n<h4>7. ¿Por cuánto tiempo?</h4>\n<p>Hasta que usted los borre del navegador.</p>\n\n');
+    const t0 = cfg.SHEETS_URL ? TEXT : TEXT.replace(/<!--RETIRO-->[\s\S]*?<!--\/RETIRO-->/, '<h4>9. Participación voluntaria y retiro</h4>\n<p>Participar es voluntario. Puede negarse o detenerse en cualquier momento, <strong>sin ninguna consecuencia para su atención de salud</strong>. Como sus datos están solo en su dispositivo, usted los controla directamente y puede borrarlos cuando quiera desde la configuración de su navegador.</p>\n\n<h4>10. Sus derechos</h4>\n<p>Al no salir sus datos de su dispositivo, usted tiene acceso y control total sobre ellos. Para cualquier duda, escriba a {{CONTACTO}}.</p>\n\n');
+    const t1 = cfg.INSTITUCION && cfg.INSTITUCION.trim() ? t0 : t0.replace(/<!--INST-->[\s\S]*?<!--\/INST-->/, "");
+    const t = cfg.SHEETS_URL ? t1 : t1.replace(/<!--SERVER-->[\s\S]*?<!--\/SERVER-->/, '<h4>5. ¿Quién tendrá acceso?</h4>\n<p>Nadie más que usted. Sus respuestas se procesan en su propio dispositivo y <strong>no se envían a ningún servidor</strong> ni al equipo del proyecto.</p>\n\n<h4>6. ¿Dónde se guardan?</h4>\n<p>Únicamente en la memoria de su navegador, en este dispositivo. Usted puede generar un informe para guardarlo o imprimirlo. Si usa un dispositivo compartido, borre los datos del navegador al terminar.</p>\n\n<h4>7. ¿Por cuánto tiempo?</h4>\n<p>Hasta que usted los borre del navegador.</p>\n\n');
     return t.replace(/\{\{(\w+)\}\}/g, (_, k) => {
       const v = (cfg[k] || "").toString().trim();
       if (v) return k === "ETICA" ? v : esc(v);
