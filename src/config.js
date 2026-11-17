@@ -5,7 +5,7 @@ window.CSI_CONFIG = {
   // Datos que aparecen en el consentimiento informado (lo vacío se muestra como [COMPLETAR]):
   INSTITUCION: "",  // Ej.: "Universidad X / Clínica Y"
   RESPONSABLE: "Dra. Karina Castillo",  // Nombre de la persona responsable del piloto
-  CONTACTO: "+56 9 9347 7884",     // Correo o teléfono para dudas, retiro y derechos
+  CONTACTO: "Instagram @drkarinacastillogine o +56 9 9347 7884",     // Correo o teléfono para dudas, retiro y derechos
   PLAZO: "",        // Ej.: "30 de junio de 2027"
   ETICA: ""         // Dejar vacío si NO hay aprobación. Si la hay: "Aprobado por el Comité ... N° ... (fecha)"
 };
