@@ -5,7 +5,7 @@
   const params = new URLSearchParams(location.search);
   const STAFF = location.hash === "#staff";          // pestaña de registros solo para el equipo
   const CLINICA = params.get("c") || "";            // viene en el QR: ?c=codigo
-  if (STAFF) $("#nav").hidden = false;
+  if (STAFF) { $("#nav").hidden = false; document.querySelector("label.demo").hidden = false; }
   const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
   const save = r => localStorage.setItem(KEY, JSON.stringify(r));
 
@@ -36,8 +36,9 @@
     $("#live-score").textContent = s.total; $("#live-answered").textContent = s.answered;
   }
   form.addEventListener("change", live);
-  form.demo.addEventListener("change", () => { $("#demo-banner").hidden = !form.demo.checked; });
-  if (params.get("demo") === "1") { form.demo.checked = true; $("#demo-banner").hidden = false; }
+  const showBanner = () => { $("#demo-banner").hidden = !(STAFF && form.demo.checked); };
+  form.demo.addEventListener("change", showBanner);
+  if (params.get("demo") === "1") { form.demo.checked = true; showBanner(); }  // marca silenciosa: el participante no ve nada
   form.fecha.valueAsDate = new Date();
   $("#btn-clear").addEventListener("click", () => setTimeout(() => { form.fecha.valueAsDate = new Date(); live(); $("#result").hidden = true; }));
 
