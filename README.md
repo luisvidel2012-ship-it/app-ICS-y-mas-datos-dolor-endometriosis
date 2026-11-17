@@ -29,3 +29,6 @@ Texto en `src/consent.js` (versión `v0.3-2026-11`), enfocado en el uso clínico
 - **Modo local (el más simple):** dejar `SHEETS_URL` vacío en `src/config.js`. El paciente obtiene su informe en su dispositivo; no se envía nada, no se necesita cuenta de Google.
 - **Modo con recolección:** agregar Google Sheets + Apps Script (también gratis; ver arriba). Solo para pruebas o datos ficticios.
 - Instalable desde el navegador (Agregar a pantalla de inicio), funciona sin internet.
+
+## Identidad visual
+Colores, logo y tipografía de la Dra. Karina Castillo · Ginecología, medidos sobre su pieza gráfica: ciruela `#381048`, rosa `#d23c72`, rosa profundo `#ae2a60`, vino `#980848`, fondo `#fce4ec → #facedf`, botón con degradado `#5a1c5c → #e2508a`. Logo en `icons/logo-kc.png` (recortado de la pieza; reemplazar por el archivo original si se dispone de él). Fuentes incluidas en `fonts/` (DM Serif Display y Nunito Sans, licencia SIL OFL 1.1), sin conexión a servicios externos.

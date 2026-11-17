@@ -17,7 +17,7 @@
   $("#print-consent").addEventListener("click", () => {
     const w = window.open("", "_blank");
     if (!w) return alert("Permita las ventanas emergentes para imprimir.");
-    w.document.write("<!DOCTYPE html><meta charset=utf-8><title>Consentimiento informado</title><body style='font-family:sans-serif;max-width:700px;margin:auto'>" + CSI_CONSENT.html(CFG) + "</body>");
+    w.document.write("<!DOCTYPE html><meta charset=utf-8><title>Consentimiento informado</title><body style='font-family:sans-serif;max-width:700px;margin:auto;color:#401048'><h2>Consentimiento informado</h2>" + CSI_CONSENT.html(CFG) + "</body>");
     w.document.close(); w.focus(); w.print();
   });
 
@@ -65,9 +65,9 @@
     const r = $("#result"); r.hidden = false;
     r.innerHTML = `<h2>¡Gracias por responder!</h2><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
       Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
-      ${rec.total >= 40 ? "Su puntaje está en un rango que su equipo de salud querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
-      Su equipo tratante interpretará este resultado junto con el resto de su evaluación.</p>
-      <p><button type="button" class="primary" id="open-report">Ver mi informe (guardar o imprimir)</button></p>`;
+      ${rec.total >= 40 ? "Su puntaje está en un rango que su médica querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
+      Su médica interpretará este resultado junto con el resto de su evaluación.</p>
+      <p><button type="button" class="primary" id="open-report">Ver mi informe</button></p>`;
     lastRec = rec; $("#open-report").addEventListener("click", openReport);
     form.reset(); form.fecha.valueAsDate = new Date(); live();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -79,23 +79,44 @@
   function reportHTML(r) {
     const rows = CSI.ITEMS.map((t, i) => `<tr><td>${i + 1}</td><td>${e2(t)}</td><td>${LABELS[r.respuestas[i]]} (${r.respuestas[i]})</td></tr>`).join("");
     const dx = r.diagnosticos.filter(d => d.si).map(d => `<li>${e2(d.nombre)}${d.anio ? " — " + e2(d.anio) : ""}</li>`).join("") || "<li>Ninguno indicado</li>";
-    return `<!DOCTYPE html><meta charset="utf-8"><title>Informe CSI ${e2(r.id)}</title>
-<style>body{font-family:system-ui,sans-serif;max-width:760px;margin:1.5rem auto;padding:0 1rem;color:#222}
-h1{font-size:1.3rem;color:#7b2d5b}table{border-collapse:collapse;width:100%;font-size:.85rem}td,th{border:1px solid #ccc;padding:.3rem .5rem;text-align:left}
-.score{font-size:2rem;font-weight:700;color:#7b2d5b}small,.note{color:#555;font-size:.8rem}@media print{button{display:none}}</style>
-<h1>Informe — Inventario de Sensibilización Central (CSI)</h1>
-<p><strong>Código:</strong> ${e2(r.id)} · <strong>Fecha:</strong> ${e2(r.fecha)} · <strong>Edad:</strong> ${e2(r.edad)}
-${r.eva !== "" ? " · <strong>Dolor pélvico (0–10):</strong> " + e2(r.eva) : ""}</p>
-<p>Puntaje total</p><p class="score">${r.total} <small>de 100</small></p>
-<p>El valor de referencia utilizado en la literatura es 40. ${r.total >= 40 ? "Su puntaje lo alcanza o lo supera." : "Su puntaje está por debajo de ese valor."}
-Este puntaje es una herramienta de tamizaje: <strong>no es un diagnóstico</strong> y debe ser interpretado por su equipo de salud.</p>
-<h2 style="font-size:1rem">Parte A — Sus respuestas</h2>
+    const U = p => new URL(p, location.href).href;   // rutas absolutas: el informe se abre en otra ventana
+    return `<!DOCTYPE html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Informe CSI ${e2(r.id)}</title>
+<style>
+@font-face{font-family:"DM Serif Display";src:url(${U("fonts/dm-serif-display-400.woff2")}) format("woff2")}
+@font-face{font-family:"Nunito Sans";font-weight:400;src:url(${U("fonts/nunito-sans-400.woff2")}) format("woff2")}
+@font-face{font-family:"Nunito Sans";font-weight:700;src:url(${U("fonts/nunito-sans-700.woff2")}) format("woff2")}
+@page{size:A4;margin:14mm}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:"Nunito Sans",system-ui,sans-serif;max-width:760px;margin:1.2rem auto;padding:0 1rem;color:#401048;line-height:1.4}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:.6rem 1rem;border-bottom:2px solid #f2cfdf;padding-bottom:.8rem;margin-bottom:1rem}
+.head img{width:230px;height:auto}
+.head .meta{text-align:right;font-size:.85rem;color:#6e4a6c;white-space:nowrap}
+h1{font-family:"DM Serif Display",Georgia,serif;font-weight:400;color:#381048;font-size:1.75rem;line-height:1.05;letter-spacing:-.02em;margin:0 0 .2rem}
+h2{font-family:"DM Serif Display",Georgia,serif;font-weight:400;color:#381048;font-size:1.2rem;margin:1.2rem 0 .5rem}
+.scorebox{display:flex;align-items:center;gap:1.2rem;background:linear-gradient(180deg,#fce4ec,#facedf);border-radius:18px;padding:1rem 1.2rem;margin:1rem 0}
+.score{font-family:"DM Serif Display",Georgia,serif;font-size:3.2rem;line-height:1;color:#ae2a60;text-align:center;flex:none;min-width:5.5rem}
+.score small{display:block;margin-top:.25rem;font-family:"Nunito Sans",sans-serif;font-size:.9rem;color:#6e4a6c}
+table{border-collapse:collapse;width:100%;font-size:.86rem}td,th{border-bottom:1px solid #f4dbe6;padding:.38rem .5rem;text-align:left}
+th{background:#fbe6ef;color:#381048}td:last-child{white-space:nowrap;color:#980848;font-weight:700}
+ul{margin:.2rem 0}.note{color:#6e4a6c;font-size:.78rem}
+button{font:700 1rem "Nunito Sans",sans-serif;color:#fff;border:0;border-radius:999px;padding:.8rem 1.6rem;cursor:pointer;
+  background:linear-gradient(105deg,#5a1c5c 0%,#7e2363 38%,#c43a74 76%,#e2508a 100%);box-shadow:0 10px 24px rgba(122,28,84,.28)}
+@media print{button{display:none}body{margin:0}}
+</style>
+<div class="head"><img src="${U("icons/logo-kc.png")}" alt="Dra. Karina Castillo — Ginecología">
+<div class="meta"><strong>Código:</strong> ${e2(r.id)}<br><strong>Fecha:</strong> ${e2(r.fecha)}</div></div>
+<h1>Informe — Inventario de<br>Sensibilización Central (CSI)</h1>
+<p><strong>Edad:</strong> ${e2(r.edad)}${r.eva !== "" ? " · <strong>Dolor pélvico (0–10):</strong> " + e2(r.eva) : ""}${r.endo ? " · <strong>Endometriosis:</strong> " + e2(r.endo) : ""}</p>
+<div class="scorebox"><div class="score">${r.total} <small>de 100</small></div>
+<div>El valor de referencia utilizado en la literatura es 40. ${r.total >= 40 ? "Su puntaje lo alcanza o lo supera." : "Su puntaje está por debajo de ese valor."}
+Este puntaje es una herramienta de tamizaje: <strong>no es un diagnóstico</strong> y debe ser interpretado por su médica.</div></div>
+<h2>Parte A — Sus respuestas</h2>
 <table><tr><th>N°</th><th>Enunciado</th><th>Respuesta</th></tr>${rows}</table>
-<h2 style="font-size:1rem">Parte B — Diagnósticos previos indicados</h2><ul>${dx}</ul>
+<h2>Parte B — Diagnósticos previos indicados</h2><ul>${dx}</ul>
 <p class="note">Consentimiento aceptado: versión ${e2(r.consentimiento.version)}, ${e2(r.consentimiento.fecha)}.
 Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron además enviadas a su equipo de salud según el consentimiento que usted aceptó" : " y no se envió a ningún servidor"}.</p>
-<p class="note">Aplicación desarrollada por Karina Castillo. Instrumento: Central Sensitization Inventory (Mayer et al., 2012). Versión en español: Cuesta-Vargas AI, Roldán-Jiménez C, Neblett R, Gatchel RJ. SpringerPlus 2016;5:1837, doi:10.1186/s40064-016-3515-4 (CC BY 4.0).</p>
-<button onclick="window.print()">Imprimir o guardar como PDF</button>`;
+<p class="note">Aplicación desarrollada por la Dra. Karina Castillo. Instrumento: Central Sensitization Inventory (Mayer et al., 2012). Versión en español: Cuesta-Vargas AI, Roldán-Jiménez C, Neblett R, Gatchel RJ. SpringerPlus 2016;5:1837, doi:10.1186/s40064-016-3515-4 (CC BY 4.0).</p>
+<p><button onclick="window.print()">Imprimir o guardar como PDF</button></p>`;
   }
   let lastRec = null;
   function openReport() {

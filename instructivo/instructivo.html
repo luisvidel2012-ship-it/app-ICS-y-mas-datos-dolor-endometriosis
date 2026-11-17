@@ -1,46 +1,75 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><title>Instructivo para el paciente</title>
 <style>
-@page{size:A4;margin:11mm}
-body{font-family:system-ui,Arial,sans-serif;color:#222;margin:0;font-size:11pt;line-height:1.3}
-h1{color:#7b2d5b;font-size:19pt;margin:0 0 2mm}h2{font-size:13pt;color:#7b2d5b;margin:5mm 0 2mm}
-.sub{color:#555;margin:0 0 5mm}
-.top{display:flex;gap:10mm;align-items:center;border:2px solid #7b2d5b;border-radius:8px;padding:6mm}
-.top img{width:48mm;height:48mm}.top p{margin:0 0 2mm}.big{font-size:15pt;font-weight:700}
-ol{padding-left:6mm;margin:0}li{margin-bottom:2.5mm}
-.box{background:#f6eef3;border-radius:6px;padding:3mm 4mm;margin-top:4mm}
-footer{margin-top:6mm;font-size:9pt;color:#555;border-top:1px solid #ddd;padding-top:3mm}
+@font-face{font-family:"DM Serif Display";src:url(../fonts/dm-serif-display-400.woff2) format("woff2")}
+@font-face{font-family:"Nunito Sans";font-weight:400;src:url(../fonts/nunito-sans-400.woff2) format("woff2")}
+@font-face{font-family:"Nunito Sans";font-weight:700;src:url(../fonts/nunito-sans-700.woff2) format("woff2")}
+@page{size:A4;margin:0}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html,body{margin:0}
+body{font-family:"Nunito Sans",sans-serif;color:#401048;font-size:10.6pt;line-height:1.32;width:210mm;min-height:297mm;
+  background:linear-gradient(180deg,#fce4ec 0%,#fbd9e6 55%,#facedf 100%);padding:11mm 14mm 9mm;position:relative;overflow:hidden}
+.leaves{position:absolute;right:-4mm;top:4mm;width:30mm;opacity:.85}
+.leaves2{position:absolute;left:-6mm;bottom:22mm;width:24mm;opacity:.55;transform:scaleX(-1) rotate(-12deg);z-index:0}
+.card{position:relative;z-index:1}
+.logo{width:72mm;display:block;margin-bottom:5mm}
+h1{font-family:"DM Serif Display",Georgia,serif;font-weight:400;color:#381048;font-size:25pt;line-height:1;letter-spacing:-.02em;margin:0}
+.tag{font-family:"DM Serif Display",Georgia,serif;font-size:15pt;margin:1.5mm 0 0;color:#d23c72;
+  background:linear-gradient(175deg,#d23c72,#ae2a60);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.rule{width:18mm;height:.6mm;border-radius:1mm;background:linear-gradient(90deg,#e889ad,#f4c2d6);margin:3.5mm 0 3mm}
+.sub{margin:0 0 4mm;color:#401048}.sub b{color:#980848}
+.card{background:rgba(255,255,255,.88);border:1px solid #f2cfdf;border-radius:6mm;box-shadow:0 2mm 7mm rgba(122,28,84,.08)}
+.top{display:flex;gap:7mm;align-items:center;padding:5mm 6mm}
+.qr{background:#fff;border-radius:3mm;padding:2mm;flex:none}.qr img{width:46mm;height:46mm;display:block}
+.big{font-family:"DM Serif Display",Georgia,serif;font-size:16pt;line-height:1.1;color:#381048;margin:0 0 2mm}
+.top p{margin:0 0 2mm}
+h2{font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:14pt;color:#381048;margin:5mm 0 2mm}
+ol{padding:0;margin:0;list-style:none;counter-reset:n}
+ol li{counter-increment:n;position:relative;padding-left:9mm;margin-bottom:2.3mm}
+ol li::before{content:counter(n);position:absolute;left:0;top:-.2mm;width:6mm;height:6mm;border-radius:50%;color:#fff;font-weight:700;font-size:9pt;
+  display:flex;align-items:center;justify-content:center;background:linear-gradient(105deg,#5a1c5c,#7e2363 38%,#c43a74 76%,#e2508a)}
+ul{margin:0;padding-left:5mm}li{margin-bottom:1.2mm}
+.box{padding:3.5mm 5mm;margin-top:4mm}
+.box strong.t{display:block;font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:12.5pt;color:#ae2a60;margin-bottom:1mm}
+b,strong{color:#381048}
+footer{margin-top:5mm;font-size:8pt;color:#6e4a6c;border-top:1px solid #f0c6d8;padding-top:2.5mm}
+footer .c{color:#381048;font-weight:700;font-size:9pt;display:block;margin-bottom:1mm}
 </style></head><body>
+<img src="../icons/hojas.svg" class="leaves" alt="">
+<img src="../icons/hojas.svg" class="leaves2" alt="">
+<img src="../icons/logo-kc.png" class="logo" alt="Dra. Karina Castillo — Ginecología">
 <h1>Inventario de Sensibilización Central</h1>
-<p class="sub">Cuestionario sobre síntomas de dolor · Dura unos 10 minutos</p>
+<p class="tag">Tu dolor merece ser entendido.</p>
+<div class="rule"></div>
+<p class="sub">Cuestionario sobre síntomas de dolor · Toma unos <b>10 minutos</b></p>
 
-<div class="top">
-  <img src="../qr/qr-produccion.svg" alt="Código QR">
+<div class="card top">
+  <div class="qr"><img src="../qr/qr-produccion.svg" alt="Código QR"></div>
   <div>
     <p class="big">Escanee este código con la cámara de su teléfono</p>
     <p>Se abrirá el cuestionario. No necesita descargar nada ni crear una cuenta.</p>
   </div>
 </div>
 
-<h2>Cómo participar</h2>
+<h2>Cómo responder</h2>
 <ol>
   <li><strong>Lea el consentimiento informado</strong> y marque las casillas si está de acuerdo. Responder es voluntario.</li>
   <li><strong>Ingrese un código</strong> (por ejemplo, el que le entregue su equipo de salud). <u>No escriba su nombre ni su RUT.</u></li>
-  <li><strong>Responda las 25 preguntas</strong> de la Parte A y, si corresponde, la Parte B. Elija la opción que mejor la describa, de 0 (Nunca) a 4 (Siempre).</li>
+  <li><strong>Responda las 25 preguntas</strong> de la Parte A y, si corresponde, la Parte B. Elija de 0 (Nunca) a 4 (Siempre).</li>
   <li>Presione <strong>Guardar registro</strong>. Verá su puntaje.</li>
   <li>Presione <strong>Ver mi informe</strong>. Podrá imprimirlo o guardarlo como PDF para llevarlo a su consulta.</li>
 </ol>
 
 <h2>Opcional: tener la app en su teléfono</h2>
-<ul style="margin:0;padding-left:6mm">
+<ul>
   <li><strong>Android (Chrome):</strong> menú ⋮ → <em>Instalar aplicación</em>.</li>
   <li><strong>iPhone (Safari):</strong> botón Compartir → <em>Agregar a pantalla de inicio</em>.</li>
 </ul>
 
-<div class="box">
-<strong>Importante</strong>
-<ul style="margin:2mm 0 0;padding-left:5mm">
-  <li>Este cuestionario <strong>no es un diagnóstico</strong>. Su equipo de salud interpretará el resultado junto con el resto de su evaluación.</li>
+<div class="card box">
+<strong class="t">Importante</strong>
+<ul>
+  <li>Este cuestionario <strong>no es un diagnóstico</strong>. Su médica interpretará el resultado junto con el resto de su evaluación.</li>
   <li>Sus respuestas se procesan en <strong>su propio teléfono</strong>; no se envían a ningún servidor.</li>
   <li>Si usa un teléfono compartido, borre los datos del navegador al terminar.</li>
   <li><strong>Anote su código.</strong></li>
@@ -48,6 +77,6 @@ footer{margin-top:6mm;font-size:9pt;color:#555;border-top:1px solid #ddd;padding
 </ul>
 </div>
 
-<footer>Aplicación desarrollada por Karina Castillo. Instrumento: Central Sensitization Inventory (Mayer et al., 2012); versión en español de Cuesta-Vargas et al., 2016 (doi:10.1186/s40064-016-3515-4, CC BY 4.0).
-Dudas: <strong>Dra. Karina Castillo · Instagram @drkarinacastillogine · +56 9 9347 7884</strong></footer>
+<footer><span class="c">Dudas: Dra. Karina Castillo · Instagram @drkarinacastillogine · +56 9 9347 7884</span>
+Aplicación desarrollada por la Dra. Karina Castillo. Instrumento: Central Sensitization Inventory (Mayer et al., 2012); versión en español de Cuesta-Vargas et al., 2016 (doi:10.1186/s40064-016-3515-4, CC BY 4.0).</footer>
 </body></html>

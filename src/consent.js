@@ -8,7 +8,6 @@
   const DESTINO_REMOTO = `<p>Sus respuestas se envían a la {{RESPONSABLE}} y se almacenan en una planilla de Google, cuyos servidores pueden estar fuera de Chile. Solo ella y su equipo tienen acceso, y las usan únicamente para su atención. Puede pedir que se borren escribiendo a {{CONTACTO}} e indicando su código.</p>`;
 
   const TEXT = `
-<h3>Consentimiento informado</h3>
 <p class="hint">Versión ${VERSION}</p>
 
 <h4>¿Para qué es este cuestionario?</h4>

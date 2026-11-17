@@ -3,18 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#7b2d5b">
+<meta name="theme-color" content="#fce4ec">
 <title>Inventario de Sensibilización Central (CSI)</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preload" href="fonts/dm-serif-display-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/nunito-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
-<header>
-  <h1>Inventario de Sensibilización Central</h1>
-  <p id="demo-banner" hidden>MODO DEMO — paciente ficticio: los datos se marcan como demo</p>
+<header class="brand">
+  <img src="icons/hojas.svg" class="leaves" alt="">
+  <img src="icons/logo-kc.png" class="logo" alt="Dra. Karina Castillo — Ginecología" width="268" height="66">
+  <h1>Inventario de<br>Sensibilización Central</h1>
+  <p class="tagline">Tu dolor merece ser entendido.</p>
+  <span class="rule" aria-hidden="true"></span>
+  <p class="lead">Responda con calma. Toma unos <strong>10 minutos</strong>.</p>
+  <p id="demo-banner" hidden>MODO DEMO: paciente ficticio, los datos se marcan como demo</p>
   <nav id="nav" hidden>
     <button data-tab="form" class="active">Nuevo registro</button>
     <button data-tab="records">Registros <span id="count">0</span></button>
@@ -26,7 +33,7 @@
     <fieldset id="consent-box">
       <legend>Consentimiento informado</legend>
       <div id="consent-text" class="consent" tabindex="0"></div>
-      <p><button type="button" id="print-consent">Imprimir o guardar copia del consentimiento</button></p>
+      <p class="consent-tools"><button type="button" id="print-consent" class="link">Imprimir o guardar una copia</button></p>
       <label class="check"><input type="checkbox" name="c1" required> He leído y entendido esta información y declaro ser mayor de 18 años.</label>
       <label class="check"><input type="checkbox" name="c2" required> Acepto responder este cuestionario y que mis respuestas se usen para orientar mi atención de salud.</label>
       <label class="check" id="c3-label"><input type="checkbox" name="c3" required> Autorizo que mis respuestas se envíen a la Dra. Karina Castillo y se almacenen en servidores de Google, que pueden estar fuera de Chile.</label>
@@ -82,7 +89,7 @@
 </section>
 </main>
 <footer>
-  <p><strong>Aplicación desarrollada por Karina Castillo.</strong></p>
+  <p><strong>Aplicación desarrollada por la Dra. Karina Castillo.</strong></p>
   <p>Instrumento: Central Sensitization Inventory (CSI), Mayer et al., 2012. Versión en español: Cuesta-Vargas AI, Roldán-Jiménez C, Neblett R, Gatchel RJ. <em>SpringerPlus</em> 2016;5:1837, doi:10.1186/s40064-016-3515-4, licencia CC BY 4.0. Es un cuestionario de tamizaje, no un diagnóstico.</p>
 </footer>
 <script src="src/config.js"></script>
