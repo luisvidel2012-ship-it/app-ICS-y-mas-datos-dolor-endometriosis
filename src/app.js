@@ -67,8 +67,9 @@
       Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
       ${rec.total >= 40 ? "Su puntaje está en un rango que su médica querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
       Su médica interpretará este resultado junto con el resto de su evaluación.</p>
-      <p><button type="button" class="primary" id="open-report">Ver mi informe</button></p>`;
-    lastRec = rec; $("#open-report").addEventListener("click", openReport);
+      <p class="report-actions"><button type="button" class="primary" id="download-pdf">Descargar mi informe (PDF)</button>
+      <button type="button" class="link" id="open-report">Ver en pantalla</button></p>`;
+    lastRec = rec; $("#open-report").addEventListener("click", openReport); $("#download-pdf").addEventListener("click", downloadPDF);
     form.reset(); form.fecha.valueAsDate = new Date(); live();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
@@ -78,7 +79,7 @@
   const e2 = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   function reportHTML(r) {
     const rows = CSI.ITEMS.map((t, i) => `<tr><td>${i + 1}</td><td>${e2(t)}</td><td>${LABELS[r.respuestas[i]]} (${r.respuestas[i]})</td></tr>`).join("");
-    const dx = r.diagnosticos.filter(d => d.si).map(d => `<li>${e2(d.nombre)}${d.anio ? " — " + e2(d.anio) : ""}</li>`).join("") || "<li>Ninguno indicado</li>";
+    const dx = r.diagnosticos.map(d => `<tr><td>${e2(d.nombre)}</td><td>${d.si ? "Sí" : "No"}</td><td>${d.si && d.anio ? e2(d.anio) : "—"}</td></tr>`).join("");
     const U = p => new URL(p, location.href).href;   // rutas absolutas: el informe se abre en otra ventana
     return `<!DOCTYPE html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Informe CSI ${e2(r.id)}</title>
 <style>
@@ -112,7 +113,8 @@ button{font:700 1rem "Nunito Sans",sans-serif;color:#fff;border:0;border-radius:
 Este puntaje es una herramienta de tamizaje: <strong>no es un diagnóstico</strong> y debe ser interpretado por su médica.</div></div>
 <h2>Parte A — Sus respuestas</h2>
 <table><tr><th>N°</th><th>Enunciado</th><th>Respuesta</th></tr>${rows}</table>
-<h2>Parte B — Diagnósticos previos indicados</h2><ul>${dx}</ul>
+<h2>Parte B — Diagnósticos previos</h2><table><tr><th>Diagnóstico</th><th>Respuesta</th><th>Año</th></tr>${dx}</table>
+<h2>Observaciones</h2><p>${r.obs ? e2(r.obs) : "—"}</p>
 <p class="note">Consentimiento aceptado: versión ${e2(r.consentimiento.version)}, ${e2(r.consentimiento.fecha)}.
 Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron además enviadas a su equipo de salud según el consentimiento que usted aceptó" : " y no se envió a ningún servidor"}.</p>
 <p class="note">Aplicación desarrollada por la Dra. Karina Castillo. Instrumento: Central Sensitization Inventory (Mayer et al., 2012). Versión en español: Cuesta-Vargas AI, Roldán-Jiménez C, Neblett R, Gatchel RJ. SpringerPlus 2016;5:1837, doi:10.1186/s40064-016-3515-4 (CC BY 4.0).</p>
@@ -124,6 +126,21 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
     const w = window.open("", "_blank");
     if (!w) return alert("Permita las ventanas emergentes para ver el informe.");
     w.document.write(reportHTML(lastRec)); w.document.close();
+  }
+
+  // PDF completo generado en el dispositivo
+  const consentTexts = () => ["c1", "c2", "c3"].map(n => $(`[name=${n}]`).parentElement.textContent.trim());
+  async function downloadPDF() {
+    if (!lastRec) return;
+    const btn = $("#download-pdf"), txt = btn.textContent;
+    btn.disabled = true; btn.textContent = "Generando PDF…";
+    try {
+      const doc = await CSI_PDF.build(lastRec, { logo: "icons/logo-kc.png", items: CSI.ITEMS, consentTexts: consentTexts() });
+      doc.save(CSI_PDF.fileName(lastRec));
+    } catch (e) {
+      alert("No se pudo generar el PDF. Se abrirá el informe en pantalla para que lo imprima o guarde.");
+      openReport();
+    } finally { btn.disabled = false; btn.textContent = txt; }
   }
 
   // Registros

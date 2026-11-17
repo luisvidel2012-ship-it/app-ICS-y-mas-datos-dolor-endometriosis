@@ -120,3 +120,5 @@ footer strong{color:var(--ciruela)}
 .consent-tools{margin:.5rem 0 .2rem}
 button.link{border:0;background:none;padding:.2rem 0;color:var(--vino);font-size:.9rem;text-decoration:underline;text-underline-offset:3px;box-shadow:none}
 button.link:hover{box-shadow:none;color:var(--rosa)}
+.report-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem 1.2rem}
+button:disabled{opacity:.7;cursor:progress}

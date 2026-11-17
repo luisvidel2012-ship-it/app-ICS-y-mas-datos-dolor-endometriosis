@@ -32,3 +32,6 @@ Texto en `src/consent.js` (versión `v0.3-2026-11`), enfocado en el uso clínico
 
 ## Identidad visual
 Colores, logo y tipografía de la Dra. Karina Castillo · Ginecología, medidos sobre su pieza gráfica: ciruela `#381048`, rosa `#d23c72`, rosa profundo `#ae2a60`, vino `#980848`, fondo `#fce4ec → #facedf`, botón con degradado `#5a1c5c → #e2508a`. Logo en `icons/logo-kc.png` (recortado de la pieza; reemplazar por el archivo original si se dispone de él). Fuentes incluidas en `fonts/` (DM Serif Display y Nunito Sans, licencia SIL OFL 1.1), sin conexión a servicios externos.
+
+## Informe en PDF
+Al terminar, el botón **Descargar mi informe (PDF)** genera en el dispositivo un PDF A4 con: datos del paciente (código, fecha, edad, dolor pélvico, endometriosis), puntaje total, las 25 respuestas, la Parte B completa, observaciones y el consentimiento aceptado (versión y fecha/hora). Usa jsPDF y jspdf-autotable (MIT, en `vendor/`) y las fuentes de la marca incrustadas; se carga solo al pedir el PDF y funciona sin internet. "Ver en pantalla" muestra el mismo contenido para imprimir.
