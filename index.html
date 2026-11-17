@@ -11,7 +11,8 @@
 <body>
 <header>
   <h1>Inventario de Sensibilización Central</h1>
-  <nav>
+  <p id="demo-banner" hidden>MODO DEMO — paciente ficticio: los datos se marcan como demo</p>
+  <nav id="nav" hidden>
     <button data-tab="form" class="active">Nuevo registro</button>
     <button data-tab="records">Registros <span id="count">0</span></button>
   </nav>
@@ -19,9 +20,16 @@
 <main>
 <section id="tab-form">
   <form id="csi-form" autocomplete="off">
+    <fieldset id="consent-box">
+      <legend>Consentimiento</legend>
+      <p class="hint">Este cuestionario recoge información de salud con fines de investigación. Sus respuestas se registran con un código, sin nombre ni RUT, y se tratan de forma confidencial. Su participación es voluntaria y puede detenerse en cualquier momento. <em>[Texto definitivo sujeto a aprobación del comité de ética.]</em></p>
+      <label><input type="checkbox" name="consent" required style="width:auto"> Entiendo y acepto participar</label>
+      <label><input type="checkbox" name="demo" style="width:auto"> Modo demo (paciente ficticio)</label>
+    </fieldset>
+
     <fieldset>
       <legend>Datos del participante</legend>
-      <label>Código / ID <input name="id" required></label>
+      <label>Código / ID <input name="id" required placeholder="Ej.: P001 (no use su nombre ni RUT)"></label>
       <label>Fecha <input type="date" name="fecha" required></label>
       <label>Edad <input type="number" name="edad" min="0" max="120"></label>
       <label>Dolor pélvico promedio (0–10)
@@ -67,6 +75,11 @@
   <p class="hint">Los datos se guardan solo en este dispositivo (localStorage). Exporte respaldos con regularidad.</p>
 </section>
 </main>
+<footer>
+  <p><strong>Aplicación desarrollada por Karina Castillo.</strong></p>
+  <p>Instrumento: Central Sensitization Inventory (CSI), Mayer et al., 2012. Versión en español: Cuesta-Vargas et al., 2016, <em>SpringerPlus</em> 5:1837, doi:10.1186/s40064-016-3515-4. Es un cuestionario de tamizaje, no un diagnóstico.</p>
+</footer>
+<script src="src/config.js"></script>
 <script src="src/csi.js"></script>
 <script src="src/app.js"></script>
 </body>

@@ -1,6 +1,11 @@
 (function () {
   const KEY = "csi-records-v1";
   const $ = s => document.querySelector(s);
+  const CFG = window.CSI_CONFIG || {};
+  const params = new URLSearchParams(location.search);
+  const STAFF = location.hash === "#staff";          // pestaña de registros solo para el equipo
+  const CLINICA = params.get("c") || "";            // viene en el QR: ?c=codigo
+  if (STAFF) $("#nav").hidden = false;
   const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
   const save = r => localStorage.setItem(KEY, JSON.stringify(r));
 
@@ -22,6 +27,8 @@
     $("#live-score").textContent = s.total; $("#live-answered").textContent = s.answered;
   }
   form.addEventListener("change", live);
+  form.demo.addEventListener("change", () => { $("#demo-banner").hidden = !form.demo.checked; });
+  if (params.get("demo") === "1") { form.demo.checked = true; $("#demo-banner").hidden = false; }
   form.fecha.valueAsDate = new Date();
   $("#btn-clear").addEventListener("click", () => setTimeout(() => { form.fecha.valueAsDate = new Date(); live(); $("#result").hidden = true; }));
 
@@ -32,6 +39,7 @@
     if (recs.some(r => r.id === form.id.value.trim() && r.fecha === form.fecha.value) &&
         !confirm("Ya existe un registro con ese ID y fecha. ¿Guardar de todos modos?")) return;
     const rec = {
+      clinica: CLINICA, demo: form.demo.checked, consentimiento: true,
       uid: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       id: form.id.value.trim(), fecha: form.fecha.value, edad: form.edad.value,
       eva: form.eva.value, endo: form.endo.value, obs: form.obs.value,
@@ -40,9 +48,12 @@
         nombre: n, si: form.querySelector(`input[name=d${i}]:checked`).value === "Sí", anio: form[`dy${i}`].value }))
     };
     recs.push(rec); save(recs); render();
+    flush();
     const r = $("#result"); r.hidden = false;
-    r.innerHTML = `<h2>Registro guardado</h2><p>CSI total: <strong>${rec.total}/100</strong> — ${rec.nivel}.
-      ${rec.total >= 40 ? "Supera el punto de corte (≥40) sugestivo de sensibilización central." : "Por debajo del punto de corte (40)."}</p>`;
+    r.innerHTML = `<h2>¡Gracias por responder!</h2><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
+      Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
+      ${rec.total >= 40 ? "Su puntaje está en un rango que su equipo de salud querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
+      Su equipo tratante interpretará este resultado junto con el resto de su evaluación.</p>`;
     form.reset(); form.fecha.valueAsDate = new Date(); live();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
@@ -92,6 +103,31 @@
     e.target.value = "";
   });
 
-  render(); live();
+  // Envío a Google Sheets con cola de reintento (si no hay internet queda pendiente)
+  async function flush() {
+    if (!CFG.SHEETS_URL) return;
+    let recs = load();
+    for (const r of recs.filter(x => !x.enviado)) {
+      try {
+        const res = await fetch(CFG.SHEETS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ token: CFG.TOKEN, record: flat(r) }) });
+        const j = await res.json();
+        if (j.ok) { recs = load(); const t = recs.find(x => x.uid === r.uid); if (t) { t.enviado = true; save(recs); } }
+      } catch { break; }
+    }
+    // Con envío configurado, no se conservan copias de respuestas ya enviadas en el dispositivo
+    if (!STAFF) save(load().filter(x => !x.enviado));
+    render();
+  }
+  function flat(r) {
+    const o = { uid: r.uid, recibido: new Date().toISOString(), id: r.id, clinica: r.clinica, demo: r.demo ? "sí" : "no",
+      fecha: r.fecha, edad: r.edad, dolor_pelvico: r.eva, endometriosis: r.endo };
+    CSI.ITEMS.forEach((_, i) => o["csi_" + (i + 1)] = r.respuestas[i]);
+    o.csi_total = r.total; o.csi_nivel = r.nivel;
+    r.diagnosticos.forEach((d, i) => { o["dx" + (i + 1)] = d.si ? 1 : 0; o["dx" + (i + 1) + "_anio"] = d.anio; });
+    o.observaciones = r.obs; return o;
+  }
+  window.addEventListener("online", flush);
+  render(); live(); flush();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();

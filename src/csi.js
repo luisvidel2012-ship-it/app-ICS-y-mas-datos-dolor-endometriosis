@@ -1,4 +1,5 @@
 // Lógica del CSI (Central Sensitization Inventory) — sin dependencias del DOM.
+// PENDIENTE: los textos de ITEMS y DIAGNOSES son una traducción provisional. Reemplazar por el texto oficial de Cuesta-Vargas et al. 2016 (doi:10.1186/s40064-016-3515-4) antes de usar con pacientes.
 (function (root) {
   const ITEMS = [
     "Me siento cansado/a y sin descansar al despertar por la mañana",
