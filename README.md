@@ -23,3 +23,9 @@ Aprobación del comité de ética, consentimiento definitivo, ID anónimo (sin n
 
 ## Consentimiento informado
 Texto en `src/consent.js` (versión `v0.1-piloto-2026-11`), con 3 casillas obligatorias y edad ≥18. Se guarda versión y fecha/hora del consentimiento en cada registro. Complete en `src/config.js`: INSTITUCION, RESPONSABLE, CONTACTO, PLAZO y, solo si existe, ETICA. Lo no completado aparece resaltado como [COMPLETAR]. El texto debe ser revisado por la institución antes de usarse con personas reales.
+
+## Costo mínimo: US$0
+- **Hosting:** GitHub Pages (gratis, repositorio público). **Dominio:** el de github.io (gratis). **QR:** `qr/qr-produccion.png` (sin costo).
+- **Modo local (el más simple):** dejar `SHEETS_URL` vacío en `src/config.js`. El paciente obtiene su informe en su dispositivo; no se envía nada, no se necesita cuenta de Google.
+- **Modo con recolección:** agregar Google Sheets + Apps Script (también gratis; ver arriba). Solo para pruebas o datos ficticios.
+- Instalable desde el navegador (Agregar a pantalla de inicio), funciona sin internet.
