@@ -42,8 +42,11 @@
   const showBanner = () => { $("#demo-banner").hidden = !(STAFF && form.demo.checked); };
   form.demo.addEventListener("change", showBanner);
   if (params.get("demo") === "1") { form.demo.checked = true; showBanner(); }  // marca silenciosa: el paciente no ve nada
-  form.fecha.valueAsDate = new Date();
-  $("#btn-clear").addEventListener("click", () => setTimeout(() => { form.fecha.valueAsDate = new Date(); live(); $("#result").hidden = true; clearErrors(); }));
+  // Fecha y hora las fija el sistema al guardar (hora local del dispositivo); el paciente no las ingresa
+  const pad = n => String(n).padStart(2, "0");
+  const ahora = () => { const d = new Date(); return { fecha: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, hora: `${pad(d.getHours())}:${pad(d.getMinutes())}` }; };
+  const fechaCL = iso => iso ? iso.split("-").reverse().join("-") : "";
+  $("#btn-clear").addEventListener("click", () => setTimeout(() => { live(); $("#result").hidden = true; clearErrors(); }));
 
   // Código al azar: identifica el informe sin datos personales (sin 0/O ni 1/I/L para evitar confusiones)
   function newCode() {
@@ -94,10 +97,11 @@
     }
     const s = CSI.score(answers());
     const recs = load();
+    const t = ahora();
     const rec = {
       clinica: CLINICA, demo: form.demo.checked, consentimiento: { version: CSI_CONSENT.VERSION, fecha: new Date().toISOString(), c1: form.c1.checked, c2: form.c2.checked, c3: form_c3_off ? null : form.c3.checked },
       uid: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      id: newCode(), fecha: form.fecha.value, edad: form.edad.value,
+      id: newCode(), fecha: t.fecha, hora: t.hora, edad: form.edad.value,
       eva: form.eva.value, endo: form.endo.value, obs: form.obs.value,
       respuestas: answers(), total: s.total, nivel: CSI.level(s.total),
       diagnosticos: CSI.DIAGNOSES.map((n, i) => ({
@@ -106,19 +110,24 @@
     recs.push(rec); save(recs); render();
     flush();
     const r = $("#result"); r.hidden = false;
-    r.innerHTML = `<h2>¡Gracias por responder!</h2><p class="code-line">Código de su informe: <strong>${rec.id}</strong></p><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
+    r.innerHTML = `<h2>¡Gracias por responder!</h2><p class="code-line">Código de su informe: <strong>${rec.id}</strong><br>Fecha: <strong>${fechaCL(rec.fecha)} · ${rec.hora}</strong></p><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
       Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
       ${rec.total >= 40 ? "Su puntaje está en un rango que su médica querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
       Su médica interpretará este resultado junto con el resto de su evaluación.</p>
-      <p class="report-step">Guarde su informe con todas sus respuestas y su puntaje:</p>
-      <p class="report-actions"><button type="button" class="primary" id="download-pdf">Descargar mi informe (PDF)</button>
+      <p class="report-step">Guarde o comparta su informe con todas sus respuestas y su puntaje:</p>
+      <p class="report-actions">${CAN_SHARE ? '<button type="button" class="primary" id="share-pdf">Compartir mi informe</button>' : ""}
+      <button type="button" class="${CAN_SHARE ? "" : "primary"}" id="download-pdf">Descargar PDF</button>
       <button type="button" class="link" id="open-report">Ver en pantalla</button></p>
+      ${CAN_SHARE ? '<p class="hint share-hint">Podrá enviarlo por WhatsApp, correo u otra aplicación. Usted elige a quién.</p>' : ""}
+      <p class="hint pdf-status" id="pdf-status" role="status"></p>
       <p class="report-new"><button type="button" class="link" id="new-form">Responder un nuevo cuestionario</button></p>`;
     lastRec = rec; $("#open-report").addEventListener("click", openReport); $("#download-pdf").addEventListener("click", downloadPDF);
+    if (CAN_SHARE) $("#share-pdf").addEventListener("click", sharePDF);
+    preparePDF(rec);                                      // listo antes de que el paciente toque "Compartir"
     $("#new-form").addEventListener("click", () => {
       r.hidden = true; form.hidden = false; window.scrollTo({ top: 0, behavior: "smooth" });
     });
-    form.reset(); form.fecha.valueAsDate = new Date(); live();
+    form.reset(); live();
     form.hidden = true;                                   // el resultado queda solo y arriba, a la vista
     r.scrollIntoView({ behavior: "smooth", block: "start" });
   });
@@ -154,7 +163,7 @@ button{font:700 1rem "Nunito Sans",sans-serif;color:#fff;border:0;border-radius:
 @media print{button{display:none}body{margin:0}}
 </style>
 <div class="head"><img src="${U("icons/logo-kc.png")}" alt="Dra. Karina Castillo — Ginecología">
-<div class="meta"><strong>Código:</strong> ${e2(r.id)}<br><strong>Fecha:</strong> ${e2(r.fecha)}</div></div>
+<div class="meta"><strong>Código:</strong> ${e2(r.id)}<br><strong>Fecha:</strong> ${e2(fechaCL(r.fecha))}${r.hora ? " · " + e2(r.hora) : ""}</div></div>
 <h1>Informe — Inventario de<br>Sensibilización Central (CSI)</h1>
 <p><strong>Edad:</strong> ${e2(r.edad)}${r.eva !== "" ? " · <strong>Dolor pélvico (0–10):</strong> " + e2(r.eva) : ""}${r.endo ? " · <strong>Endometriosis:</strong> " + e2(r.endo) : ""}</p>
 <div class="scorebox"><div class="score">${r.total} <small>de 100</small></div>
@@ -179,23 +188,65 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
 
   // PDF completo generado en el dispositivo
   const consentTexts = () => ["c1", "c2", "c3"].map(n => $(`[name=${n}]`).parentElement.textContent.trim());
-  async function downloadPDF() {
+  // Se genera una sola vez por resultado y se reutiliza para descargar y compartir
+  const CAN_SHARE = (() => {
+    try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [new File(["%PDF"], "x.pdf", { type: "application/pdf" })] })); }
+    catch (e) { return false; }
+  })();
+  let pdfJob = null;
+  function preparePDF(rec) {
+    const name = CSI_PDF.fileName(rec);
+    pdfJob = CSI_PDF.build(rec, { logo: "icons/logo-kc.png", items: CSI.ITEMS, consentTexts: consentTexts() })
+      .then(doc => new File([doc.output("blob")], name, { type: "application/pdf" }));
+    pdfJob.catch(() => {});                                // el error se informa al usarlo
+    return pdfJob;
+  }
+  const status = msg => { const s = $("#pdf-status"); if (s) s.textContent = msg || ""; };
+  async function withButton(id, busyText, fn) {
+    const btn = $(id), txt = btn.textContent;
+    btn.disabled = true; btn.textContent = busyText;
+    try { await fn(); } finally { btn.disabled = false; btn.textContent = txt; }
+  }
+  function downloadPDF() {
     if (!lastRec) return;
-    const btn = $("#download-pdf"), txt = btn.textContent;
-    btn.disabled = true; btn.textContent = "Generando PDF…";
-    try {
-      const doc = await CSI_PDF.build(lastRec, { logo: "icons/logo-kc.png", items: CSI.ITEMS, consentTexts: consentTexts() });
-      doc.save(CSI_PDF.fileName(lastRec));
-    } catch (e) {
-      alert("No se pudo generar el PDF. Se abrirá el informe en pantalla para que lo imprima o guarde.");
-      openReport();
-    } finally { btn.disabled = false; btn.textContent = txt; }
+    return withButton("#download-pdf", "Preparando PDF…", async () => {
+      try {
+        const file = await (pdfJob || preparePDF(lastRec));
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(file); a.download = file.name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+        status("");
+      } catch (e) {
+        pdfJob = null;
+        alert("No se pudo generar el PDF. Se abrirá el informe en pantalla para que lo imprima o guarde.");
+        openReport();
+      }
+    });
+  }
+  function sharePDF() {
+    if (!lastRec) return;
+    return withButton("#share-pdf", "Abriendo…", async () => {
+      let file;
+      try { file = await (pdfJob || preparePDF(lastRec)); }
+      catch (e) { pdfJob = null; status("No se pudo preparar el PDF. Use “Descargar PDF” o “Ver en pantalla”."); return; }
+      try {
+        await navigator.share({ files: [file], title: "Informe CSI " + lastRec.id, text: "Informe del Inventario de Sensibilización Central (CSI)." });
+        status("");
+      } catch (e) {
+        if (e && e.name === "AbortError") return;          // la persona cerró el menú: no es un error
+        status(e && e.name === "NotAllowedError"
+          ? "Su teléfono pidió confirmar. Toque “Compartir mi informe” otra vez."
+          : "No se pudo abrir el menú para compartir. Use “Descargar PDF” y luego compártalo desde su teléfono.");
+      }
+    });
   }
 
   // Registros
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   function render() {
     const recs = load();
+    const t = ahora();
     $("#count").textContent = recs.length;
     $("#empty").hidden = recs.length > 0;
     $("#records-table tbody").innerHTML = recs.map(r => `<tr><td>${esc(r.id)}</td><td>${esc(r.fecha)}</td>
@@ -218,11 +269,11 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
   $("#export-csv").addEventListener("click", () => {
-    const head = ["id", "fecha", "edad", "dolor_pelvico", "endometriosis",
+    const head = ["id", "fecha", "hora", "edad", "dolor_pelvico", "endometriosis",
       ...CSI.ITEMS.map((_, i) => "csi_" + (i + 1)), "csi_total", "csi_nivel",
       ...CSI.DIAGNOSES.flatMap((_, i) => ["dx" + (i + 1), "dx" + (i + 1) + "_anio"]), "observaciones"];
     const q = v => '"' + String(v ?? "").replace(/"/g, '""') + '"';
-    const rows = load().map(r => [r.id, r.fecha, r.edad, r.eva, r.endo, ...r.respuestas, r.total, r.nivel,
+    const rows = load().map(r => [r.id, r.fecha, r.hora, r.edad, r.eva, r.endo, ...r.respuestas, r.total, r.nivel,
       ...r.diagnosticos.flatMap(d => [d.si ? 1 : 0, d.anio]), r.obs].map(q).join(","));
     download("csi_registros.csv", "﻿" + [head.join(","), ...rows].join("\n"), "text/csv;charset=utf-8");
   });
@@ -255,7 +306,7 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
   }
   function flat(r) {
     const o = { uid: r.uid, recibido: new Date().toISOString(), id: r.id, clinica: r.clinica, demo: r.demo ? "sí" : "no",
-      fecha: r.fecha, edad: r.edad, dolor_pelvico: r.eva, endometriosis: r.endo };
+      fecha: r.fecha, hora: r.hora, edad: r.edad, dolor_pelvico: r.eva, endometriosis: r.endo };
     CSI.ITEMS.forEach((_, i) => o["csi_" + (i + 1)] = r.respuestas[i]);
     o.csi_total = r.total; o.csi_nivel = r.nivel;
     r.diagnosticos.forEach((d, i) => { o["dx" + (i + 1)] = d.si ? 1 : 0; o["dx" + (i + 1) + "_anio"] = d.anio; });

@@ -53,7 +53,7 @@
     // Encabezado: logo, código y fecha
     try { doc.addImage(await imageData(opts.logo), "PNG", M, 13, 60, 60 * 133 / 536); } catch (e) { font("serif", 16, C.ciruela); doc.text("Dra. Karina Castillo", M, 22); }
     font("bold", 9.5, C.ciruela); doc.text("Código: " + r.id, W - M, 19, { align: "right" });
-    font("sans", 9.5, C.suave); doc.text("Fecha: " + fechaCL(r.fecha), W - M, 24.5, { align: "right" });
+    font("sans", 9.5, C.suave); doc.text("Fecha: " + fechaCL(r.fecha) + (r.hora ? " · " + r.hora + " h" : ""), W - M, 24.5, { align: "right" });
     doc.setDrawColor(...C.borde); doc.setLineWidth(0.6); doc.line(M, 33, W - M, 33);
 
     // Título
