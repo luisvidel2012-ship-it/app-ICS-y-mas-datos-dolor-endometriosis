@@ -133,3 +133,29 @@ input.missing{border-color:var(--rosa);box-shadow:0 0 0 4px rgba(210,60,114,.18)
 .report-new{margin:.6rem 0 .2rem}
 .code-line{margin:.1rem 0 .5rem;color:var(--texto-suave);font-size:.95rem}.code-line strong{color:var(--ciruela);letter-spacing:.04em}
 .share-hint{margin:.1rem 0 .2rem}.pdf-status:empty{display:none}.pdf-status{color:var(--vino);font-weight:700}
+/* Interpretación del puntaje */
+.score-line{font-size:1.1rem;margin:.6rem 0 .2rem}.score-line strong{font-family:var(--serif);font-weight:400;font-size:1.7rem;color:var(--rosa-profundo)}
+.gauge{margin:.4rem 0 .6rem}
+.gauge-bar{position:relative;display:flex;height:14px;border-radius:999px;overflow:visible;margin-top:2.2rem}
+.gauge-bar .seg:first-child{border-radius:999px 0 0 999px}.gauge-bar .seg:nth-last-child(2){border-radius:0 999px 999px 0}
+.seg+.seg{margin-left:2px}
+.s0{background:#f6d3e1}.s1{background:#eea3c1}.s2{background:#d23c72}.s3{background:#ae2a60}.s4{background:#700840}
+.marker{position:absolute;top:-2rem;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
+.marker b{background:var(--ciruela);color:#fff;font-size:.85rem;border-radius:8px;padding:.1rem .45rem}
+.marker::after{content:"";border:7px solid transparent;border-top-color:var(--ciruela);margin-top:-1px}
+.gauge-ticks{position:relative;height:1.1rem;font-size:.72rem;color:var(--texto-suave);margin-top:.2rem}
+.gauge-ticks span{position:absolute;transform:translateX(-50%)}.gauge-ticks span:first-child{transform:none}.gauge-ticks span:last-child{transform:translateX(-100%)}
+.gauge-legend{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0 .2rem}
+.chip{font-size:.8rem;font-weight:700;padding:.2rem .55rem;border-radius:999px;background:#fbe6ef!important;color:var(--texto-suave);border:1.5px solid transparent}
+.chip small{font-weight:400}.chip.on{background:#fff!important;color:var(--vino);border-color:var(--rosa)}
+.gauge-now{margin:.3rem 0 0;font-size:.95rem}.gauge-now small{color:var(--texto-suave)}
+.band-text{background:#fff6f9;border-left:4px solid var(--rosa);border-radius:10px;padding:.6rem .8rem}
+.r-h{font-family:var(--serif);font-weight:400;color:var(--ciruela);font-size:1.2rem;margin:1rem 0 .2rem}
+.r-actions{margin:.2rem 0 .4rem;padding-left:1.2rem}.r-actions li{margin:.2rem 0}
+/* Agendar por WhatsApp */
+.agenda{margin:1.1rem 0 .3rem;padding:1rem;border-radius:18px;background:linear-gradient(180deg,#fce4ec,#facedf)}
+.agenda-t{font-family:var(--serif);font-size:1.15rem;color:var(--ciruela);margin:0 0 .6rem}
+.wa-btn{display:inline-flex;align-items:center;gap:.55rem;text-decoration:none;font:800 1rem var(--sans);color:#fff;
+  background:var(--boton);padding:.8rem 1.4rem;border-radius:999px;box-shadow:0 10px 24px rgba(122,28,84,.28)}
+.wa-btn svg{color:#fff}
+.agenda .hint{margin:.5rem 0 0}

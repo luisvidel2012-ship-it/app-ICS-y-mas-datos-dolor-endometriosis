@@ -56,6 +56,21 @@
     return "CSI-" + s.slice(0, 3) + "-" + s.slice(3);
   }
 
+  // Termómetro del puntaje (anchos proporcionales a cada rango)
+  const BAND_W = [30, 10, 10, 10, 41];
+  function gaugeHTML(total) {
+    const b = CSI.band(total), pos = Math.min(98, Math.max(2, total));
+    return `<div class="gauge" role="img" aria-label="Puntaje ${total} de 100, nivel ${b.label}">
+      <div class="gauge-bar">${CSI.BANDS.map((x, i) => `<span class="seg s${i}" style="flex:${BAND_W[i]}"></span>`).join("")}
+        <span class="marker" style="left:${pos}%"><b>${total}</b></span></div>
+      <div class="gauge-ticks"><span style="left:0">0</span><span style="left:30%">30</span><span style="left:40%">40</span><span style="left:50%">50</span><span style="left:60%">60</span><span style="left:100%">100</span></div>
+      <div class="gauge-legend">${CSI.BANDS.map((x, i) => `<span class="chip s${i}${i === b.index ? " on" : ""}">${x.label} <small>${x.range}</small></span>`).join("")}</div>
+      <p class="gauge-now">Nivel: <strong>${b.label}</strong> <small>(${b.tech}; Neblett et al., 2017)</small></p></div>`;
+  }
+  // "Agendar evaluación": abre WhatsApp con un mensaje de texto listo; no se adjunta ni se envía nada automáticamente
+  const WA_URL = CFG.WHATSAPP ? `https://wa.me/${String(CFG.WHATSAPP).replace(/\D/g, "")}?text=${encodeURIComponent(CFG.WHATSAPP_TEXTO || "")}` : "";
+  const WA_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>';
+
   // Validación con mensajes claros (los botones 0–4 son radios ocultos: el aviso nativo del navegador no se ve)
   const errBox = $("#form-error");
   function clearErrors() { form.querySelectorAll(".missing").forEach(el => el.classList.remove("missing")); errBox.hidden = true; }
@@ -110,16 +125,24 @@
     recs.push(rec); save(recs); render();
     flush();
     const r = $("#result"); r.hidden = false;
-    r.innerHTML = `<h2>¡Gracias por responder!</h2><p class="code-line">Código de su informe: <strong>${rec.id}</strong><br>Fecha: <strong>${fechaCL(rec.fecha)} · ${rec.hora}</strong></p><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
-      Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
-      ${rec.total >= 40 ? "Su puntaje está en un rango que su médica querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
-      Su médica interpretará este resultado junto con el resto de su evaluación.</p>
+    const b = CSI.band(rec.total);
+    r.innerHTML = `<h2>¡Gracias por responder!</h2><p class="code-line">Código de su informe: <strong>${rec.id}</strong><br>Fecha: <strong>${fechaCL(rec.fecha)} · ${rec.hora}</strong></p>
+      <p class="score-line">Su puntaje CSI es <strong>${rec.total} de 100</strong></p>
+      ${gaugeHTML(rec.total)}
+      <p class="band-text">${b.text} <strong>Este resultado no es un diagnóstico.</strong></p>
+      <h3 class="r-h">¿Qué es la sensibilización central?</h3>
+      <p>${CSI.EXPLAIN}</p>
+      <h3 class="r-h">Qué puede hacer ahora</h3>
+      <ul class="r-actions">${CSI.ACTIONS.map(t => `<li>${t}</li>`).join("")}</ul>
       <p class="report-step">Guarde o comparta su informe con todas sus respuestas y su puntaje:</p>
       <p class="report-actions">${CAN_SHARE ? '<button type="button" class="primary" id="share-pdf">Compartir mi informe</button>' : ""}
       <button type="button" class="${CAN_SHARE ? "" : "primary"}" id="download-pdf">Descargar PDF</button>
       <button type="button" class="link" id="open-report">Ver en pantalla</button></p>
       ${CAN_SHARE ? '<p class="hint share-hint">Podrá enviarlo por WhatsApp, correo u otra aplicación. Usted elige a quién.</p>' : ""}
       <p class="hint pdf-status" id="pdf-status" role="status"></p>
+      ${WA_URL ? `<div class="agenda"><p class="agenda-t">¿Desea una evaluación con la Dra. Karina Castillo?</p>
+        <a class="wa-btn" href="${WA_URL}" target="_blank" rel="noopener">${WA_ICON}<span>Agendar evaluación</span></a>
+        <p class="hint">Se abrirá WhatsApp con un mensaje listo para enviar. Solo se envía el texto, no sus respuestas.</p></div>` : ""}
       <p class="report-new"><button type="button" class="link" id="new-form">Responder un nuevo cuestionario</button></p>`;
     lastRec = rec; $("#open-report").addEventListener("click", openReport); $("#download-pdf").addEventListener("click", downloadPDF);
     if (CAN_SHARE) $("#share-pdf").addEventListener("click", sharePDF);
@@ -158,6 +181,7 @@ h2{font-family:"DM Serif Display",Georgia,serif;font-weight:400;color:#381048;fo
 table{border-collapse:collapse;width:100%;font-size:.86rem}td,th{border-bottom:1px solid #f4dbe6;padding:.38rem .5rem;text-align:left}
 th{background:#fbe6ef;color:#381048}td:last-child{white-space:nowrap;color:#980848;font-weight:700}
 ul{margin:.2rem 0}.note{color:#6e4a6c;font-size:.78rem}
+h3{font-size:1rem;color:#381048;margin:.8rem 0 .2rem}.ans{color:#980848;white-space:nowrap}.lv small{color:#6e4a6c}a{color:#d23c72;font-weight:700}
 button{font:700 1rem "Nunito Sans",sans-serif;color:#fff;border:0;border-radius:999px;padding:.8rem 1.6rem;cursor:pointer;
   background:linear-gradient(105deg,#5a1c5c 0%,#7e2363 38%,#c43a74 76%,#e2508a 100%);box-shadow:0 10px 24px rgba(122,28,84,.28)}
 @media print{button{display:none}body{margin:0}}
@@ -169,6 +193,16 @@ button{font:700 1rem "Nunito Sans",sans-serif;color:#fff;border:0;border-radius:
 <div class="scorebox"><div class="score">${r.total} <small>de 100</small></div>
 <div>El valor de referencia utilizado en la literatura es 40. ${r.total >= 40 ? "Su puntaje lo alcanza o lo supera." : "Su puntaje está por debajo de ese valor."}
 Este puntaje es una herramienta de tamizaje: <strong>no es un diagnóstico</strong> y debe ser interpretado por su médica.</div></div>
+${(() => { const b = CSI.band(r.total), fq = CSI.frequent(r.respuestas); return `
+<h2>¿Qué significa su puntaje?</h2>
+<p class="lv">Nivel: <strong>${b.label}</strong> <small>(${b.tech}; Neblett et al., 2017) · Bajo 0–29 · Leve 30–39 · Moderado 40–49 · Alto 50–59 · Muy alto 60–100</small></p>
+<p>${b.text} <strong>Este resultado no es un diagnóstico.</strong></p>
+<h3>¿Qué es la sensibilización central?</h3><p>${CSI.EXPLAIN}</p>
+<h2>Sus síntomas más frecuentes</h2>
+${fq.length ? fq.map(g => `<h3>${g.name}</h3><ul>${g.items.map(i => `<li>${e2(i.text)} <strong class="ans">${LABELS[i.v]} (${i.v})</strong></li>`).join("")}</ul>`).join("") : "<p>No marcó ningún síntoma como «Continuamente» o «Siempre».</p>"}
+<p class="note">Agrupación descriptiva: el CSI se interpreta con el puntaje total.</p>
+<h2>Qué puede hacer ahora</h2><ul>${CSI.ACTIONS.map(t => `<li>${t}</li>`).join("")}</ul>
+${WA_URL ? `<p><strong>Agendar evaluación:</strong> <a href="${WA_URL}" target="_blank" rel="noopener">Dra. Karina Castillo · WhatsApp +56 9 9347 7884</a></p>` : ""}`; })()}
 <h2>Parte A — Sus respuestas</h2>
 <table><tr><th>N°</th><th>Enunciado</th><th>Respuesta</th></tr>${rows}</table>
 <h2>Parte B — Diagnósticos previos</h2><table><tr><th>Diagnóstico</th><th>Respuesta</th><th>Año</th></tr>${dx}</table>
@@ -196,7 +230,7 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
   let pdfJob = null;
   function preparePDF(rec) {
     const name = CSI_PDF.fileName(rec);
-    pdfJob = CSI_PDF.build(rec, { logo: "icons/logo-kc.png", items: CSI.ITEMS, consentTexts: consentTexts() })
+    pdfJob = CSI_PDF.build(rec, { logo: "icons/logo-kc.png", items: CSI.ITEMS, consentTexts: consentTexts(), agenda: WA_URL ? { url: WA_URL, label: "Dra. Karina Castillo · WhatsApp +56 9 9347 7884" } : null })
       .then(doc => new File([doc.output("blob")], name, { type: "application/pdf" }));
     pdfJob.catch(() => {});                                // el error se informa al usarlo
     return pdfJob;

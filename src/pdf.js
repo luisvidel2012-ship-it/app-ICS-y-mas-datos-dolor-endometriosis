@@ -75,6 +75,72 @@
     font("sans", 10, C.texto); doc.text(doc.splitTextToSize(msg, CW - 48), M + 42, y + 9.5, { lineHeightFactor: 1.35 });
     y += 41;
 
+    // ¿Qué significa su puntaje? (termómetro + texto del nivel)
+    const CSI = root.CSI, b = CSI.band(r.total);
+    y = heading("¿Qué significa su puntaje?", y) + 9;
+    const BW = [30, 10, 10, 10, 41], SEG = [[246, 211, 225], [238, 163, 193], [210, 60, 114], [174, 42, 96], [112, 8, 64]];
+    let x = M;
+    CSI.BANDS.forEach((band, i) => {
+      const w = CW * BW[i] / 101;
+      doc.setFillColor(...SEG[i]); doc.rect(x + (i ? 0.4 : 0), y, w - (i ? 0.4 : 0), 4.2, "F");
+      font(i === b.index ? "bold" : "sans", 7.6, i === b.index ? C.vino : C.suave);
+      doc.text(band.label, x + w / 2, y + 8.6, { align: "center" });
+      font("sans", 6.6, C.suave); doc.text(band.range, x + w / 2, y + 11.8, { align: "center" });
+      x += w;
+    });
+    const mx = M + CW * Math.min(98, Math.max(2, r.total)) / 101;        // marcador
+    doc.setFillColor(...C.ciruela); doc.triangle(mx - 1.6, y - 2.2, mx + 1.6, y - 2.2, mx, y - 0.2, "F");
+    doc.roundedRect(mx - 6.5, y - 8.2, 13, 5.6, 1.2, 1.2, "F");
+    font("bold", 8.5, [255, 255, 255]); doc.text(String(r.total), mx, y - 4.3, { align: "center" });
+    y += 19.5;
+    font("bold", 10.5, C.ciruela); doc.text("Nivel: ", M, y);
+    let nx = M + doc.getTextWidth("Nivel: ");
+    font("bold", 10.5, C.vino); doc.text(b.label, nx, y); nx += doc.getTextWidth(b.label);
+    font("sans", 8.5, C.suave); doc.text(`   (${b.tech}; Neblett et al., 2017)`, nx, y); y += 6;
+    font("sans", 10, C.texto);
+    const bt = doc.splitTextToSize(b.text + " Este resultado no es un diagnóstico.", CW);
+    doc.text(bt, M, y, { lineHeightFactor: 1.35 }); y += bt.length * 4.8 + 5;
+
+    font("serif", 11.5, C.ciruela); doc.text("¿Qué es la sensibilización central?", M, y); y += 5;
+    font("sans", 10, C.texto);
+    const ex = doc.splitTextToSize(CSI.EXPLAIN, CW);
+    doc.text(ex, M, y, { lineHeightFactor: 1.35 }); y += ex.length * 4.8 + 6;
+
+    // Síntomas más frecuentes (respuestas 3 o 4), agrupados de forma descriptiva
+    const freq = CSI.frequent(r.respuestas);
+    y = ensureSpace(y, 30);
+    y = heading("Sus síntomas más frecuentes", y) + 3;
+    if (!freq.length) { font("sans", 10, C.texto); doc.text("No marcó ningún síntoma como «Continuamente» o «Siempre».", M, y); y += 7; }
+    for (const g of freq) {
+      y = ensureSpace(y, 6 + g.items.length * 5);
+      font("bold", 9.8, C.ciruela); doc.text(g.name, M, y); y += 5;
+      for (const it of g.items) {
+        font("sans", 9.4, C.texto);
+        const l = doc.splitTextToSize(`•  ${it.text}`, CW - 40);
+        doc.text(l, M + 2, y, { lineHeightFactor: 1.3 });
+        font("bold", 9.2, C.vino); doc.text(`${LABELS[it.v]} (${it.v})`, W - M, y, { align: "right" });
+        y += l.length * 4.4 + 1;
+      }
+      y += 2.5;
+    }
+    font("sans", 7.8, C.suave); doc.text("Agrupación descriptiva: el CSI se interpreta con el puntaje total.", M, y); y += 8;
+
+    // Qué puede hacer ahora
+    y = ensureSpace(y, 22);
+    y = heading("Qué puede hacer ahora", y) + 3;
+    font("sans", 10, C.texto);
+    for (const t of CSI.ACTIONS) { doc.text("•  " + t, M + 1, y); y += 5.4; }
+    if (opts.agenda && opts.agenda.url) {
+      y += 2;
+      font("bold", 10, C.ciruela); doc.text("Agendar evaluación: ", M + 1, y);
+      const lx = M + 1 + doc.getTextWidth("Agendar evaluación: ");
+      font("bold", 10, C.rosa); doc.textWithLink(opts.agenda.label, lx, y, { url: opts.agenda.url });
+      doc.setDrawColor(...C.rosa); doc.setLineWidth(0.25); doc.line(lx, y + 0.8, lx + doc.getTextWidth(opts.agenda.label), y + 0.8);
+      y += 5;
+    }
+    y += 6;
+    y = ensureSpace(y, 40);
+
     const table = (o) => doc.autoTable(Object.assign({
       margin: { left: M, right: M, top: 22, bottom: 24 }, theme: "plain",
       styles: { font: "Nunito", fontSize: 9.2, textColor: C.texto, cellPadding: { top: 1.9, bottom: 1.9, left: 2.2, right: 2.2 },

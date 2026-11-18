@@ -35,3 +35,6 @@ Colores, logo y tipografía de la Dra. Karina Castillo · Ginecología, medidos 
 
 ## Informe en PDF
 Al terminar, el botón **Descargar mi informe (PDF)** genera en el dispositivo un PDF A4 con: datos del paciente (código, fecha, edad, dolor pélvico, endometriosis), puntaje total, las 25 respuestas, la Parte B completa, observaciones y el consentimiento aceptado (versión y fecha/hora). Usa jsPDF y jspdf-autotable (MIT, en `vendor/`) y las fuentes de la marca incrustadas; se carga solo al pedir el PDF y funciona sin internet. "Ver en pantalla" muestra el mismo contenido para imprimir.
+
+## Interpretación y "Agendar evaluación"
+El resultado, el PDF y la vista en pantalla muestran: termómetro con los 5 niveles (Neblett et al., Pain Pract 2017, doi:10.1111/papr.12440; nombres amables para la paciente), texto según el nivel, qué es la sensibilización central, síntomas respondidos con 3–4 agrupados de forma descriptiva (el ítem 24 se excluye) y "Qué puede hacer ahora". El botón **Agendar evaluación** abre WhatsApp con un mensaje de texto listo (número y texto en `src/config.js`); no adjunta ni envía respuestas.
