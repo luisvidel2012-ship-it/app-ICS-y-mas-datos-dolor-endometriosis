@@ -131,3 +131,4 @@ label.missing{background:#fff0f5;outline:2px solid var(--rosa);outline-offset:4p
 input.missing{border-color:var(--rosa);box-shadow:0 0 0 4px rgba(210,60,114,.18)}
 .report-step{margin:.9rem 0 .2rem;font-weight:700;color:var(--ciruela)}
 .report-new{margin:.6rem 0 .2rem}
+.code-line{margin:.1rem 0 .5rem;color:var(--texto-suave);font-size:.95rem}.code-line strong{color:var(--ciruela);letter-spacing:.04em}

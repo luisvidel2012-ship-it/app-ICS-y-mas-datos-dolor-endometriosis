@@ -45,6 +45,14 @@
   form.fecha.valueAsDate = new Date();
   $("#btn-clear").addEventListener("click", () => setTimeout(() => { form.fecha.valueAsDate = new Date(); live(); $("#result").hidden = true; clearErrors(); }));
 
+  // Código al azar: identifica el informe sin datos personales (sin 0/O ni 1/I/L para evitar confusiones)
+  function newCode() {
+    const abc = "ABCDEFGHJKMNPQRSTUVWXYZ23456789", n = new Uint32Array(6);
+    crypto.getRandomValues(n);
+    const s = Array.from(n, v => abc[v % abc.length]).join("");
+    return "CSI-" + s.slice(0, 3) + "-" + s.slice(3);
+  }
+
   // Validación con mensajes claros (los botones 0–4 son radios ocultos: el aviso nativo del navegador no se ve)
   const errBox = $("#form-error");
   function clearErrors() { form.querySelectorAll(".missing").forEach(el => el.classList.remove("missing")); errBox.hidden = true; }
@@ -52,7 +60,6 @@
     const box = n => form[n].closest("label");
     for (const n of ["c1", "c2", "c3"]) if (form[n].required && !form[n].checked)
       return { el: box(n), msg: "Para continuar, marque las casillas del consentimiento informado (al inicio)." };
-    if (!form.id.value.trim()) return { el: form.id, msg: "Ingrese un código (no use su nombre ni su RUT)." };
     const edad = Number(form.edad.value);
     if (!form.edad.value || !Number.isInteger(edad) || edad < 18 || edad > 120) return { el: form.edad, msg: "Ingrese su edad. Este cuestionario es solo para mayores de 18 años." };
     if (form.eva.value !== "" && !(Number(form.eva.value) >= 0 && Number(form.eva.value) <= 10)) return { el: form.eva, msg: "El dolor pélvico debe ser un número de 0 a 10." };
@@ -87,12 +94,10 @@
     }
     const s = CSI.score(answers());
     const recs = load();
-    if (recs.some(r => r.id === form.id.value.trim() && r.fecha === form.fecha.value) &&
-        !confirm("Ya existe un registro con ese ID y fecha. ¿Guardar de todos modos?")) return;
     const rec = {
       clinica: CLINICA, demo: form.demo.checked, consentimiento: { version: CSI_CONSENT.VERSION, fecha: new Date().toISOString(), c1: form.c1.checked, c2: form.c2.checked, c3: form_c3_off ? null : form.c3.checked },
       uid: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      id: form.id.value.trim(), fecha: form.fecha.value, edad: form.edad.value,
+      id: newCode(), fecha: form.fecha.value, edad: form.edad.value,
       eva: form.eva.value, endo: form.endo.value, obs: form.obs.value,
       respuestas: answers(), total: s.total, nivel: CSI.level(s.total),
       diagnosticos: CSI.DIAGNOSES.map((n, i) => ({
@@ -101,7 +106,7 @@
     recs.push(rec); save(recs); render();
     flush();
     const r = $("#result"); r.hidden = false;
-    r.innerHTML = `<h2>¡Gracias por responder!</h2><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
+    r.innerHTML = `<h2>¡Gracias por responder!</h2><p class="code-line">Código de su informe: <strong>${rec.id}</strong></p><p>Su puntaje CSI es <strong>${rec.total} de 100</strong>.
       Este cuestionario es una herramienta de tamizaje y <strong>no es un diagnóstico</strong>.
       ${rec.total >= 40 ? "Su puntaje está en un rango que su médica querrá revisar con usted." : "Su puntaje está por debajo del valor de referencia de 40."}
       Su médica interpretará este resultado junto con el resto de su evaluación.</p>

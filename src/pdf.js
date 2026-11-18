@@ -148,7 +148,8 @@
 
   function fileName(r) {
     const safe = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
-    return `Informe-CSI-${safe(r.id) || "paciente"}-${safe(r.fecha)}.pdf`;
+    const id = safe(r.id) || "paciente";
+    return `Informe-${/^CSI-/.test(id) ? "" : "CSI-"}${id}-${safe(r.fecha)}.pdf`;
   }
 
   root.CSI_PDF = { build, fileName, ensureLibs };
