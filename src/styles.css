@@ -132,7 +132,7 @@ input.missing{border-color:var(--rosa);box-shadow:0 0 0 4px rgba(210,60,114,.18)
 .report-step{margin:.9rem 0 .2rem;font-weight:700;color:var(--ciruela)}
 .report-new{margin:.6rem 0 .2rem}
 .code-line{margin:.1rem 0 .5rem;color:var(--texto-suave);font-size:.95rem}.code-line strong{color:var(--ciruela);letter-spacing:.04em}
-.share-hint{margin:.1rem 0 .2rem}.pdf-status:empty{display:none}.pdf-status{color:var(--vino);font-weight:700}
+.pdf-status:empty{display:none}.pdf-status{color:var(--vino);font-weight:700}
 /* Interpretación del puntaje */
 .score-line{font-size:1.1rem;margin:.6rem 0 .2rem}.score-line strong{font-family:var(--serif);font-weight:400;font-size:1.7rem;color:var(--rosa-profundo)}
 .gauge{margin:.4rem 0 .6rem}

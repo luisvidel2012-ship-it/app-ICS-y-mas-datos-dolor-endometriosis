@@ -1,6 +1,6 @@
 // Red primero: si hay internet se usa siempre la versión más reciente (importante para el consentimiento);
 // la copia guardada solo se usa sin conexión.
-const C = "csi-v10";
+const C = "csi-v11";
 const F = ["./", "index.html", "src/styles.css", "src/config.js", "src/consent.js", "src/csi.js", "src/app.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png",
   "icons/logo-kc.png", "icons/hojas.svg", "fonts/dm-serif-display-400.woff2", "fonts/nunito-sans-400.woff2", "fonts/nunito-sans-700.woff2", "fonts/nunito-sans-800.woff2",
   "src/pdf.js", "vendor/jspdf.umd.min.js", "vendor/jspdf.plugin.autotable.min.js", "vendor/pdf-fonts.js"];

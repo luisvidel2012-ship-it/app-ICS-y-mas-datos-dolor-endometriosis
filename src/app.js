@@ -135,19 +135,16 @@
       <p>${CSI.EXPLAIN}</p>
       <h3 class="r-h">Qué puede hacer ahora</h3>
       <ul class="r-actions">${CSI.ACTIONS.map(t => `<li>${t}</li>`).join("")}</ul>
-      <p class="report-step">Guarde o comparta su informe con todas sus respuestas y su puntaje:</p>
-      <p class="report-actions">${CAN_SHARE ? '<button type="button" class="primary" id="share-pdf">Compartir mi informe</button>' : ""}
-      <button type="button" class="${CAN_SHARE ? "" : "primary"}" id="download-pdf">Descargar PDF</button>
+      <p class="report-step">Descargue su informe con todas sus respuestas y su puntaje, para imprimirlo y llevarlo a su consulta:</p>
+      <p class="report-actions"><button type="button" class="primary" id="download-pdf">Descargar PDF</button>
       <button type="button" class="link" id="open-report">Ver en pantalla</button></p>
-      ${CAN_SHARE ? '<p class="hint share-hint">Podrá enviarlo por WhatsApp, correo u otra aplicación. Usted elige a quién.</p>' : ""}
       <p class="hint pdf-status" id="pdf-status" role="status"></p>
       ${WA_URL ? `<div class="agenda"><p class="agenda-t">¿Desea una evaluación con la Dra. Karina Castillo?</p>
         <a class="wa-btn" href="${WA_URL}" target="_blank" rel="noopener">${WA_ICON}<span>Agendar evaluación</span></a>
         <p class="hint">Se abrirá WhatsApp con un mensaje listo para enviar. Solo se envía el texto, no sus respuestas.</p></div>` : ""}
       <p class="report-new"><button type="button" class="link" id="new-form">Responder un nuevo cuestionario</button></p>`;
     lastRec = rec; $("#open-report").addEventListener("click", openReport); $("#download-pdf").addEventListener("click", downloadPDF);
-    if (CAN_SHARE) $("#share-pdf").addEventListener("click", sharePDF);
-    preparePDF(rec);                                      // listo antes de que el paciente toque "Compartir"
+    preparePDF(rec);                                      // se prepara de inmediato: la descarga es instantánea
     $("#new-form").addEventListener("click", () => {
       r.hidden = true; form.hidden = false; window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -224,11 +221,7 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
 
   // PDF completo generado en el dispositivo
   const consentTexts = () => ["c1", "c2", "c3"].map(n => $(`[name=${n}]`).parentElement.textContent.trim());
-  // Se genera una sola vez por resultado y se reutiliza para descargar y compartir
-  const CAN_SHARE = (() => {
-    try { return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [new File(["%PDF"], "x.pdf", { type: "application/pdf" })] })); }
-    catch (e) { return false; }
-  })();
+  // Se genera una sola vez por resultado y se reutiliza
   let pdfJob = null;
   function preparePDF(rec) {
     const name = CSI_PDF.fileName(rec);
@@ -257,23 +250,6 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
         pdfJob = null;
         alert("No se pudo generar el PDF. Se abrirá el informe en pantalla para que lo imprima o guarde.");
         openReport();
-      }
-    });
-  }
-  function sharePDF() {
-    if (!lastRec) return;
-    return withButton("#share-pdf", "Abriendo…", async () => {
-      let file;
-      try { file = await (pdfJob || preparePDF(lastRec)); }
-      catch (e) { pdfJob = null; status("No se pudo preparar el PDF. Use “Descargar PDF” o “Ver en pantalla”."); return; }
-      try {
-        await navigator.share({ files: [file], title: "Informe CSI " + lastRec.id, text: "Informe del Inventario de Sensibilización Central (CSI)." });
-        status("");
-      } catch (e) {
-        if (e && e.name === "AbortError") return;          // la persona cerró el menú: no es un error
-        status(e && e.name === "NotAllowedError"
-          ? "Su teléfono pidió confirmar. Toque “Compartir mi informe” otra vez."
-          : "No se pudo abrir el menú para compartir. Use “Descargar PDF” y luego compártalo desde su teléfono.");
       }
     });
   }
