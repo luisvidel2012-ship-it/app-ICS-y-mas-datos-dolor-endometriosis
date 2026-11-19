@@ -6,5 +6,6 @@ window.CSI_CONFIG = {
   RESPONSABLE: "Dra. Karina Castillo",
   TELEFONO: "+56 9 5801 8699",   // único lugar del número: contacto y "Agendar evaluación" (WhatsApp)
   CONTACTO: "Instagram @drakarinacastillogine o +56 9 5801 8699",
+  INSTAGRAM: "drakarinacastillogine",   // cuenta (sin @) que aparece en el informe final
   WHATSAPP_TEXTO: "Hola Dra. Castillo, completé el cuestionario de sensibilización central y quisiera solicitar una evaluación. Llevaré mi informe impreso a la consulta."
 };

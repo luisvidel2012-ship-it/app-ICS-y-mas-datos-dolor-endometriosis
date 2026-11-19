@@ -130,14 +130,18 @@
     y = heading("Qué puede hacer ahora", y) + 3;
     font("sans", 10, C.texto);
     for (const t of CSI.ACTIONS) { doc.text("•  " + t, M + 1, y); y += 5.4; }
-    if (opts.agenda && opts.agenda.url) {
-      y += 2;
-      font("bold", 10, C.ciruela); doc.text("Agendar evaluación: ", M + 1, y);
-      const lx = M + 1 + doc.getTextWidth("Agendar evaluación: ");
-      font("bold", 10, C.rosa); doc.textWithLink(opts.agenda.label, lx, y, { url: opts.agenda.url });
-      doc.setDrawColor(...C.rosa); doc.setLineWidth(0.25); doc.line(lx, y + 0.8, lx + doc.getTextWidth(opts.agenda.label), y + 0.8);
-      y += 5;
-    }
+    // Líneas "Etiqueta: enlace" (Agendar evaluación, Instagram)
+    const linkLine = (title, l) => {
+      if (!l || !l.url) return;
+      font("bold", 10, C.ciruela); doc.text(title, M + 1, y);
+      const lx = M + 1 + doc.getTextWidth(title);
+      font("bold", 10, C.rosa); doc.textWithLink(l.label, lx, y, { url: l.url });
+      doc.setDrawColor(...C.rosa); doc.setLineWidth(0.25); doc.line(lx, y + 0.8, lx + doc.getTextWidth(l.label), y + 0.8);
+      y += 6;
+    };
+    if ((opts.agenda && opts.agenda.url) || (opts.instagram && opts.instagram.url)) y += 2;
+    linkLine("Agendar evaluación: ", opts.agenda);
+    linkLine("Instagram: ", opts.instagram);
     y += 6;
     y = ensureSpace(y, 40);
 

@@ -69,6 +69,7 @@
   }
   // "Agendar evaluación": abre WhatsApp con un mensaje de texto listo; no se adjunta ni se envía nada automáticamente
   const WA_URL = CFG.TELEFONO ? `https://wa.me/${String(CFG.TELEFONO).replace(/\D/g, "")}?text=${encodeURIComponent(CFG.WHATSAPP_TEXTO || "")}` : "";
+  const IG_URL = CFG.INSTAGRAM ? `https://www.instagram.com/${encodeURIComponent(CFG.INSTAGRAM)}/` : "";
   const WA_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>';
 
   // Validación con mensajes claros (los botones 0–4 son radios ocultos: el aviso nativo del navegador no se ve)
@@ -203,6 +204,7 @@ ${fq.length ? fq.map(g => `<h3>${g.name}</h3><ul>${g.items.map(i => `<li>${e2(i.
 <p class="note">Agrupación descriptiva: el CSI se interpreta con el puntaje total.</p>
 <h2>Qué puede hacer ahora</h2><ul>${CSI.ACTIONS.map(t => `<li>${t}</li>`).join("")}</ul>
 ${WA_URL ? `<p><strong>Agendar evaluación:</strong> <a href="${WA_URL}" target="_blank" rel="noopener">Dra. Karina Castillo · WhatsApp ${CFG.TELEFONO}</a></p>` : ""}`; })()}
+${IG_URL ? `<p><strong>Instagram:</strong> <a href="${IG_URL}" target="_blank" rel="noopener">@${e2(CFG.INSTAGRAM)}</a></p>` : ""}
 <h2>Parte A — Sus respuestas</h2>
 <table><tr><th>N°</th><th>Enunciado</th><th>Respuesta</th></tr>${rows}</table>
 <h2>Parte B — Diagnósticos previos</h2><table><tr><th>Diagnóstico</th><th>Respuesta</th><th>Año</th></tr>${dx}</table>
@@ -230,7 +232,7 @@ Este informe se generó en su dispositivo${REMOTE ? "; sus respuestas fueron ade
   let pdfJob = null;
   function preparePDF(rec) {
     const name = CSI_PDF.fileName(rec);
-    pdfJob = CSI_PDF.build(rec, { logo: "icons/logo-kc.png", items: CSI.ITEMS, consentTexts: consentTexts(), agenda: WA_URL ? { url: WA_URL, label: `Dra. Karina Castillo · WhatsApp ${CFG.TELEFONO}` } : null })
+    pdfJob = CSI_PDF.build(rec, { logo: "icons/logo-kc.png", items: CSI.ITEMS, consentTexts: consentTexts(), agenda: WA_URL ? { url: WA_URL, label: `Dra. Karina Castillo · WhatsApp ${CFG.TELEFONO}` } : null, instagram: IG_URL ? { url: IG_URL, label: "@" + CFG.INSTAGRAM } : null })
       .then(doc => new File([doc.output("blob")], name, { type: "application/pdf" }));
     pdfJob.catch(() => {});                                // el error se informa al usarlo
     return pdfJob;
